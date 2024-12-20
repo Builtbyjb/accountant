@@ -4,10 +4,14 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
 } from "@remix-run/react";
-import type { LinksFunction } from "@remix-run/node";
+import type { LinksFunction, LoaderFunction } from "@remix-run/node";
+import { SidebarProvider, SidebarInset, SidebarTrigger } from "~/components/ui/sidebar"
+
 
 import "./tailwind.css";
+import { NavSidebar } from "./components/NavSidebar";
 
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -24,19 +28,29 @@ export const links: LinksFunction = () => [
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
       </head>
-      <body>
-        {children}
+      <body className="bg-background text-foreground">
+        <div className="flex h-screen overflow-hidden">
+          <SidebarProvider aria-describedby="sidebar">
+            <NavSidebar />
+            <SidebarInset>
+              <SidebarTrigger className="m-4" />
+              <main className="flex-1 overflow-y-auto p-8">
+                {children}
+              </main>
+            </SidebarInset>
+          </SidebarProvider>
+        </div>
         <ScrollRestoration />
         <Scripts />
       </body>
-    </html>
+    </html >
   );
 }
 
