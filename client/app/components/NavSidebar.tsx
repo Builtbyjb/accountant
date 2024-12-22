@@ -28,14 +28,13 @@ import {
 } from "~/components/ui/sidebar"
 
 // This is sample data.
-const user = {
-    name: "shadcn",
-    email: "m@example.com",
-    // avatar: "/avatars/shadcn.jpg",
-
-}
-
 const data = {
+    user: {
+        name: "shadcn",
+        email: "m@example.com",
+        // avatar: "/avatars/shadcn.jpg",
+
+    },
     teams: [
         {
             name: "Acme Inc",
@@ -176,7 +175,7 @@ export function NavSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <NavProjects projects={data.projects} />
             </SidebarContent>
             <SidebarFooter>
-                <NavUser user={user} />
+                <NavUser user={data.user} />
             </SidebarFooter>
             <SidebarRail />
         </Sidebar>
