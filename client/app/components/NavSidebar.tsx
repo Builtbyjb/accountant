@@ -159,23 +159,41 @@ const data = {
 }
 
 export function NavSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-    const { isMobile } = useSidebar()
+    const { isMobile } = useSidebar();
+    const isAuth = false;
+
     return (
         <Sidebar collapsible="icon" {...props} aria-describedby="sidebar">
             <SidebarHeader>
-                <div className="flex items-center">
-                    <TeamSwitcher teams={data.teams} />
-                    {isMobile ? (
-                        <SidebarTrigger className="ms-2" />
-                    ) : null}
-                </div>
+                {isAuth ? (
+                    <div className="flex items-center">
+                        <TeamSwitcher teams={data.teams} />
+                        {isMobile ? (
+                            <SidebarTrigger className="ms-2" />
+                        ) : null}
+                    </div>
+
+                ) : (
+                    <h1>Sign In</h1>
+                )}
             </SidebarHeader>
             <SidebarContent>
-                <NavMain items={data.navMain} />
-                <NavProjects projects={data.projects} />
+                {isAuth ? (
+                    <>
+                        <NavMain items={data.navMain} />
+                        <NavProjects projects={data.projects} />
+                    </>
+                ) : (
+                    <>
+                        <p>Register</p>
+                        <p>Login</p>
+                    </>
+                )}
             </SidebarContent>
             <SidebarFooter>
-                <NavUser user={data.user} />
+                {isAuth ? (
+                    <NavUser user={data.user} />
+                ) : null}
             </SidebarFooter>
             <SidebarRail />
         </Sidebar>
