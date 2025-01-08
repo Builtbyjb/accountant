@@ -1,3 +1,5 @@
+// For unauthenticated users
+
 import { useState } from 'react'
 import { useLocation } from '@remix-run/react';
 import { Menu } from 'lucide-react'
@@ -21,7 +23,7 @@ export default function NaviTopbar() {
                 <div className="flex justify-between h-16">
                     <div className="flex">
                         <a href="/" className="flex-shrink-0 flex items-center">
-                            <span className="text-xl font-bold">Logo</span>
+                            <span className="text-xl font-bold">Accountant</span>
                         </a>
                         <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
                             {navItems.map((item) => (

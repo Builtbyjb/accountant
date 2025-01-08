@@ -11,7 +11,7 @@ import { SidebarProvider, SidebarInset, SidebarTrigger } from "~/components/ui/s
 import "./tailwind.css";
 import { NavSidebar } from "./components/NavSidebar";
 import { useLocation } from '@remix-run/react';
-import LandingPage from "./components/landingPage";
+import LandingPage from "~/components/landingPage";
 import NavTopbar from "./components/NavTopbar";
 
 export const links: LinksFunction = () => [

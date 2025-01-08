@@ -1,3 +1,5 @@
+// For authenticated users
+
 import * as React from "react"
 import {
     AudioWaveform,
