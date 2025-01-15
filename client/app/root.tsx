@@ -7,12 +7,7 @@ import {
   useLoaderData,
 } from "@remix-run/react";
 import type { LinksFunction, LoaderFunction } from "@remix-run/node";
-import { SidebarProvider, SidebarInset, SidebarTrigger } from "~/components/ui/sidebar"
 import "./tailwind.css";
-import { NavSidebar } from "./components/NavSidebar";
-import { useLocation } from '@remix-run/react';
-import LandingPage from "~/components/landingPage";
-import NavTopbar from "./components/NavTopbar";
 
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -27,11 +22,7 @@ export const links: LinksFunction = () => [
   },
 ];
 
-export function Layout({ children }: { children: React.ReactNode }) {
-  const location = useLocation();
-  const currentPath = location.pathname;
-  const isAuth = false;
-
+export default function App() {
   return (
     <html lang="en" className="dark">
       <head>
@@ -41,44 +32,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body className="bg-background text-foreground">
-        {currentPath === "/register" || currentPath === "/login" ? (
-          <>
-            <NavTopbar />
-            <div className="flex h-screen overflow-hidden">
-              <main className="flex-1 overflow-y-auto p-8">
-                {children}
-              </main>
-            </div>
-          </>
-        ) : currentPath === "/" && !isAuth ? (
-          <>
-            <NavTopbar />
-            <div className="flex h-screen overflow-hidden">
-              <main className="flex-1 overflow-y-auto p-8">
-                <LandingPage />
-              </main>
-            </div>
-          </>
-        ) : (
-          <div className="flex h-screen overflow-hidden">
-            <SidebarProvider aria-describedby="sidebar">
-              <NavSidebar />
-              <SidebarInset>
-                <SidebarTrigger className="m-4" />
-                <main className="flex-1 overflow-y-auto p-8">
-                  {children}
-                </main>
-              </SidebarInset>
-            </SidebarProvider>
-          </div>
-        )}
+        <Outlet />
         <ScrollRestoration />
         <Scripts />
       </body>
     </html >
   );
-}
-
-export default function App() {
-  return <Outlet />;
 }

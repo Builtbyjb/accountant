@@ -1,13 +1,20 @@
+import type { MetaFunction } from "@remix-run/node";
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { CheckCircle, ArrowRight } from 'lucide-react'
+
+export const meta: MetaFunction = () => {
+    return [
+        { title: "Home" },
+        { name: "description", content: "Welcome to [business name]" },
+    ];
+};
 
 export default function LandingPage() {
     return (
         <div className="flex flex-col min-h-screen">
             <main className="flex-grow">
                 {/* Hero Section */}
-                {/* <section className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white"> */}
                 <section className="">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 flex flex-col md:flex-row items-center">
                         <div className="md:w-1/2 mb-8 md:mb-0">
@@ -25,7 +32,7 @@ export default function LandingPage() {
                             </div>
                         </div>
                         <div className="md:w-1/2">
-                            <img src="/acc_1.jpg" alt="A picture of a lady doing accounting" width="600" height="400" className="rounded-lg shadow-xl" />
+                            <img src="/acc_1.jpg" alt="A picture of a lady doing accounting" width="600" height="300" className="rounded-lg shadow-xl" />
                         </div>
                     </div>
                 </section>
