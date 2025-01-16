@@ -1,24 +1,26 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	// "server/middleware"
 )
 
 type User struct {
-	Firstname string `json:"firstname"`
-	Lastname string `json:"lastname"`
-	Email string `json:"email"`
-	Password string `json:"password"`
+	Firstname       string `json:"firstname"`
+	Lastname        string `json:"lastname"`
+	Email           string `json:"email"`
+	Password        string `json:"password"`
 	ConfirmPassword string `json:"confirmPassword"`
 }
 
 func main() {
 	app := fiber.New()
-	// middleware.InitClerk()	
+	// middleware.InitClerk()
 
 	// Setup CORS
 	app.Use(cors.New(cors.Config{
@@ -44,27 +46,33 @@ func main() {
 }
 
 func apiHandler(c *fiber.Ctx) error {
-    return c.SendString("ApiSuccessful")
+	return c.SendString("ApiSuccessful")
 }
 
 func v0Handler(c *fiber.Ctx) error {
-    return c.SendString("v0Successful")
+	return c.SendString("v0Successful")
 }
 
 func handleTransaction(c *fiber.Ctx) error {
-    return c.SendString("Successful")
+	return c.SendString("Successful")
 }
 
 func registerUser(c *fiber.Ctx) error {
-	var u User
-	if err := c.BodyParser(&u); err != nil {
+	var user User
+	if err := c.BodyParser(&user); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Cannot parse JSON",
 		})
 	}
 
-	fmt.Println(u)
-	return c.Status(fiber.StatusOK).JSON(fiber.Map {
+	jsonData, err := json.Marshal(user)
+	if err != nil {
+		log.Fatalf("Error marshalling JSON: %v", err)
+	}
+
+	fmt.Println(string(jsonData))
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"success": "User registered",
 	})
 }

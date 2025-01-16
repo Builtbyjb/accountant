@@ -12,50 +12,64 @@ import { Label } from "~/components/ui/label";
 // import api from "~/lib/api";
 import { Navigate } from "react-router";
 import AccountSetup from "~/components/AccountSetup";
+import { validateData } from "~/lib/utils";
 
-const formSchema = z
-    .object({
-        firstname: z.string().min(2, {
-            message: "First name must be at least 2 characters long.",
+const formSchema = z.object({
+    firstname: z.string().min(2, {
+        message: "First name must be at least 2 characters long.",
+    }),
+    lastname: z.string().min(2, {
+        message: "Last name must be at least 2 characters long.",
+    }),
+    email: z.string().email({
+        message: "Please enter a valid email address.",
+    }),
+    password: z.string().min(8, {
+        message: "Password must be at least 8 characters long.",
+    }),
+    confirmPassword: z.string(),
+    // terms: z.string().refine((value) => value === "on", {
+    //     message: "You must agree to the terms and conditions.",
+    // }),
+    terms: z.literal("on", {
+        errorMap: () => ({
+            message: "You must agree to the terms and conditions."
         }),
-        lastname: z.string().min(2, {
-            message: "Last name must be at least 2 characters long.",
-        }),
-        email: z.string().email({
-            message: "Please enter a valid email address.",
-        }),
-        password: z.string().min(8, {
-            message: "Password must be at least 8 characters long.",
-        }),
-        confirmPassword: z.string(),
-        terms: z.boolean().refine((value) => value === true, {
-            message: "You must agree to the terms and conditions.",
-        }),
-    })
-    .refine((data) => data.password === data.confirmPassword, {
-        message: "Passwords don't match",
-        path: ["confirmPassword"],
-    });
+    }),
+}).refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+});
 
-export async function action({ request }: ActionFunctionArgs) {
+type ActionInput = z.TypeOf<typeof formSchema>
 
-    const formData = await request.formData();
-    const data = Object.fromEntries(formData);
-    console.log({ data })
+export async function action({ request }: ActionFunctionArgs): Promise<Response | undefined> {
 
-    // zod validate data
-    const result = formSchema.safeParse(data);
-    console.log(result)
+    const { formData, errors } = await validateData<ActionInput>({ request, formSchema })
 
-    if (!result.success) {
-        console.log("error")
-        return false;
+    if (errors === null) {
+        const response = await fetch('http://127.0.0.1:3000/api/v0/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData),
+        });
+
+        if (response.status === 200) {
+            return Response.json({ success: "User registered" })
+        } else {
+            return Response.json({ error: "User registration failed" })
+
+        }
+
+    } else {
+        return Response.json({ errors })
     }
-    return redirect('/')
 }
 
 export default function Register() {
-    const actionData = useActionData();
+    const actionData: Response | undefined = useActionData();
     // console.log(actionData)
 
     const [isLoading, setIsLoading] = useState(false);
@@ -67,7 +81,7 @@ export default function Register() {
                 <div className="space-y-2">
                     <h1 className="text-3xl font-bold">Create an Account</h1>
                     <p className="text-sm text-red-500 dark:text-red-400">
-                        {errorMessage}
+                        {/* {errorMessage} */}
                     </p>
                 </div>
                 <Form method="POST" className="space-y-4">
@@ -77,6 +91,9 @@ export default function Register() {
                             name="firstname"
                             type="text"
                         />
+                        <p className="text-sm text-red-500 dark:text-red-400">
+                            {actionData?.errors?.firstname}
+                        </p>
                     </div>
                     <div>
                         <Label htmlFor="lastname">Last name</Label>
@@ -84,6 +101,9 @@ export default function Register() {
                             name="lastname"
                             type="text"
                         />
+                        <p className="text-sm text-red-500 dark:text-red-400">
+                            {actionData?.errors?.lastname}
+                        </p>
                     </div>
                     <div>
                         <Label htmlFor="email">Email</Label>
@@ -92,6 +112,9 @@ export default function Register() {
                             type="email"
                             name="email"
                         />
+                        <p className="text-sm text-red-500 dark:text-red-400">
+                            {actionData?.errors?.email}
+                        </p>
                     </div>
                     <div>
                         <Label htmlFor="password">Password</Label>
@@ -100,6 +123,9 @@ export default function Register() {
                             type="password"
                             name="password"
                         />
+                        <p className="text-sm text-red-500 dark:text-red-400">
+                            {actionData?.errors?.password}
+                        </p>
                     </div>
                     <div>
                         <Label htmlFor="confirmPassword">Confirm Password</Label>
@@ -108,6 +134,9 @@ export default function Register() {
                             type="password"
                             name="confirmPassword"
                         />
+                        <p className="text-sm text-red-500 dark:text-red-400">
+                            {actionData?.errors?.confirmPassword}
+                        </p>
                     </div>
                     <div className="flex flex-row items-start space-x-3 space-y-0">
                         <Checkbox
@@ -117,6 +146,9 @@ export default function Register() {
                         />
                         <div className="space-y-1 leading-none">
                             <Label htmlFor="terms">I agree to the terms and conditions</Label>
+                            <p className="text-sm text-red-500 dark:text-red-400">
+                                {actionData?.errors?.terms}
+                            </p>
                             <div className="text-sm text-gray-400">
                                 By checking this box, you agree to our{" "}
                                 <Link to="/terms" className="text-primary hover:underline">
