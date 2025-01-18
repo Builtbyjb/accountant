@@ -1,9 +1,13 @@
 import type { MetaFunction } from "@remix-run/node";
 import { useState, useRef, useEffect } from 'react'
+import { useActionData, Link, Form } from '@remix-run/react';
+import type { ActionFunctionArgs } from "@remix-run/node";
 import { Button } from "~/components/ui/button"
 import { Textarea } from "~/components/ui/textarea"
 import { Send } from 'lucide-react'
 import { Outlet, redirect } from "@remix-run/react";
+import * as z from "zod";
+import { validateData } from "~/lib/utils";
 
 export const meta: MetaFunction = () => {
     return [
@@ -11,6 +15,58 @@ export const meta: MetaFunction = () => {
         { name: "description", content: "Welcome to [business name]" },
     ];
 };
+
+const formSchema = z.object({
+    firstname: z.string().min(2, {
+        message: "First name must be at least 2 characters long.",
+    }),
+    lastname: z.string().min(2, {
+        message: "Last name must be at least 2 characters long.",
+    }),
+    email: z.string().email({
+        message: "Please enter a valid email address.",
+    }),
+    password: z.string().min(8, {
+        message: "Password must be at least 8 characters long.",
+    }),
+    confirmPassword: z.string(),
+    terms: z.literal("on", {
+        errorMap: () => ({
+            message: "You must agree to the terms and conditions."
+        }),
+    }),
+}).refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+});
+
+type ActionInput = z.TypeOf<typeof formSchema>
+
+
+export async function action({ request }: ActionFunctionArgs): Promise<Response | undefined> {
+
+    const { formData, errors } = await validateData<ActionInput>({ request, formSchema })
+
+    if (errors === null) {
+        const response = await fetch('http://127.0.0.1:3000/api/v0/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData),
+        });
+
+        if (response.status === 200) {
+            return redirect("/accountSetup");
+        } else {
+            return Response.json({ error: "User registration failed" })
+
+        }
+
+    } else {
+        return Response.json({ errors })
+    }
+}
 
 export default function IndexPage() {
     const [input, setInput] = useState('')

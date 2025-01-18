@@ -10,12 +10,17 @@ import (
 	// "server/middleware"
 )
 
-type User struct {
+type RegisterUser struct {
 	Firstname       string `json:"firstname"`
 	Lastname        string `json:"lastname"`
 	Email           string `json:"email"`
 	Password        string `json:"password"`
 	ConfirmPassword string `json:"confirmPassword"`
+}
+
+type LoginUser struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 func main() {
@@ -33,6 +38,7 @@ func main() {
 	v0 := api.Group("/v0")
 	v0.Get("/transaction", handleTransaction)
 	v0.Post("/register", registerUser)
+	v0.Post("/login", loginUser)
 
 	// Protected routes group
 	// api := app.Group("/api", middleware.AuthMiddleware())
@@ -58,7 +64,7 @@ func handleTransaction(c *fiber.Ctx) error {
 }
 
 func registerUser(c *fiber.Ctx) error {
-	var user User
+	var user RegisterUser
 	if err := c.BodyParser(&user); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Cannot parse JSON",
@@ -74,5 +80,25 @@ func registerUser(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"success": "User registered",
+	})
+}
+
+func loginUser(c *fiber.Ctx) error {
+	var user LoginUser
+	if err := c.BodyParser(&user); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Cannot parse JSON",
+		})
+	}
+
+	jsonData, err := json.Marshal(user)
+	if err != nil {
+		log.Fatalf("Error marshalling JSON: %v", err)
+	}
+
+	fmt.Println(string(jsonData))
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"success": "User verified",
 	})
 }

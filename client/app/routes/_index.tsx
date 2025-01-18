@@ -4,7 +4,7 @@ import { AppLayout } from "~/components/layouts/AppLayout";
 import { AuthLayout } from "~/components/layouts/AuthLayout";
 
 export default function Index() {
-  const isAuth = false;
+  const isAuth = true;
   return (
     <>
       {isAuth ?

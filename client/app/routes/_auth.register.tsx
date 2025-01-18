@@ -11,8 +11,24 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 // import api from "~/lib/api";
 import { Navigate } from "react-router";
-import AccountSetup from "~/components/AccountSetup";
 import { validateData } from "~/lib/utils";
+
+type ActionInput = z.TypeOf<typeof formSchema>
+
+type Errors = {
+    firstname: string;
+    lastname: string;
+    email: string;
+    password: string;
+    confirmPassword: string;
+    terms: string;
+}
+
+type ActionResponse = Response & {
+    errors?: Errors;
+    error?: string;
+    success?: string;
+}
 
 const formSchema = z.object({
     firstname: z.string().min(2, {
@@ -28,9 +44,6 @@ const formSchema = z.object({
         message: "Password must be at least 8 characters long.",
     }),
     confirmPassword: z.string(),
-    // terms: z.string().refine((value) => value === "on", {
-    //     message: "You must agree to the terms and conditions.",
-    // }),
     terms: z.literal("on", {
         errorMap: () => ({
             message: "You must agree to the terms and conditions."
@@ -41,9 +54,8 @@ const formSchema = z.object({
     path: ["confirmPassword"],
 });
 
-type ActionInput = z.TypeOf<typeof formSchema>
 
-export async function action({ request }: ActionFunctionArgs): Promise<Response | undefined> {
+export async function action({ request }: ActionFunctionArgs): Promise<ActionResponse | undefined> {
 
     const { formData, errors } = await validateData<ActionInput>({ request, formSchema })
 
@@ -57,7 +69,7 @@ export async function action({ request }: ActionFunctionArgs): Promise<Response 
         });
 
         if (response.status === 200) {
-            return Response.json({ success: "User registered" })
+            return redirect("/accountSetup");
         } else {
             return Response.json({ error: "User registration failed" })
 
@@ -69,11 +81,11 @@ export async function action({ request }: ActionFunctionArgs): Promise<Response 
 }
 
 export default function Register() {
-    const actionData: Response | undefined = useActionData();
-    // console.log(actionData)
+    // const [isLoading, setIsLoading] = useState(false);
+    // const [errorMessage, setErrorMessage] = useState("");
 
-    const [isLoading, setIsLoading] = useState(false);
-    const [errorMessage, setErrorMessage] = useState("");
+    const actionData: ActionResponse | undefined = useActionData();
+    // console.log(actionData)
 
     return (
         <div className="container mx-auto flex h-screen flex-col mt-32 sm:max-w-md">
@@ -165,9 +177,10 @@ export default function Register() {
                     <Button
                         type="submit"
                         className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg flex items-center space-x-2 transition duration-200 ease-in-out transform hover:scale-105"
-                        disabled={isLoading}
+                    // disabled={isLoading}
                     >
-                        {isLoading ? "Creating account..." : "Create Account"}
+                        {/* {isLoading ? "Creating account..." : "Create Account"} */}
+                        Create Account
                     </Button>
                 </Form>
                 <div className="text-center text-sm">

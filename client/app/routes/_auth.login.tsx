@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useActionData, Link, Form } from '@remix-run/react';
+import type { ActionFunctionArgs } from "@remix-run/node";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Button } from "~/components/ui/button";
@@ -9,6 +10,8 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 // import api from "~/lib/api";
 import { Navigate } from "react-router";
+import { validateData } from "~/lib/utils";
+import { redirect } from "@remix-run/node";
 
 const formSchema = z.object({
     email: z.string().email({
@@ -19,6 +22,33 @@ const formSchema = z.object({
     }),
     rememberMe: z.boolean().default(false).optional(),
 });
+
+type ActionInput = z.TypeOf<typeof formSchema>
+
+export async function action({ request }: ActionFunctionArgs): Promise<Response | undefined> {
+
+    const { formData, errors } = await validateData<ActionInput>({ request, formSchema })
+
+    if (errors === null) {
+        const response = await fetch('http://127.0.0.1:3000/api/v0/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData),
+        });
+
+        if (response.status === 200) {
+            return redirect("/accountSetup");
+        } else {
+            return Response.json({ error: "User registration failed" })
+
+        }
+
+    } else {
+        return Response.json({ errors })
+    }
+}
 
 export default function Login() {
     const [isLoading, setIsLoading] = useState(false);
@@ -58,9 +88,9 @@ export default function Login() {
                         />
                         <div className="space-y-1 leading-none">
                             <Label htmlFor="rememberMe">Remember me</Label>
-                            <div>
+                            <p className="text-sm text-gray-300">
                                 Stay logged in for 30 days
-                            </div>
+                            </p>
                         </div>
                     </div>
                     <Button type="submit"
