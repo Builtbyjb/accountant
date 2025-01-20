@@ -1,3 +1,4 @@
+import type { MetaFunction } from "@remix-run/node";
 import { useState } from "react";
 import { useActionData, Link, Form } from '@remix-run/react';
 import type { ActionFunctionArgs } from "@remix-run/node";
@@ -12,6 +13,13 @@ import { Label } from "~/components/ui/label";
 // import api from "~/lib/api";
 import { Navigate } from "react-router";
 import { validateData } from "~/lib/utils";
+
+export const meta: MetaFunction = () => {
+    return [
+        { title: "Register" },
+        { name: "description", content: "User registration page" },
+    ];
+};
 
 type ActionInput = z.TypeOf<typeof formSchema>
 
@@ -60,7 +68,7 @@ export async function action({ request }: ActionFunctionArgs): Promise<ActionRes
     const { formData, errors } = await validateData<ActionInput>({ request, formSchema })
 
     if (errors === null) {
-        const response = await fetch('http://127.0.0.1:3000/api/v0/register', {
+        const response = await fetch('http://127.0.0.1:3000/auth/v0/register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

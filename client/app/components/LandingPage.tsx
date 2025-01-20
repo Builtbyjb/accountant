@@ -1,14 +1,6 @@
-import type { MetaFunction } from "@remix-run/node";
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { CheckCircle, ArrowRight } from 'lucide-react'
-
-export const meta: MetaFunction = () => {
-    return [
-        { title: "Home" },
-        { name: "description", content: "Welcome to [business name]" },
-    ];
-};
 
 export default function LandingPage() {
     return (

@@ -1,4 +1,4 @@
-import { Outlet, redirect } from "@remix-run/react";
+import { Outlet } from "@remix-run/react";
 import { AuthLayout } from "~/components/layouts/AuthLayout";
 
 export default function AuthRoute() {
