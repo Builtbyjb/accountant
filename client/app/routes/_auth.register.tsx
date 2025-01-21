@@ -1,17 +1,14 @@
 import type { MetaFunction } from "@remix-run/node";
-import { useState } from "react";
-import { useActionData, Link, Form } from '@remix-run/react';
+import { useState, useRef, useEffect } from "react";
+import { Link, useFetcher } from '@remix-run/react';
 import type { ActionFunctionArgs } from "@remix-run/node";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
-import { redirect } from "@remix-run/node";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 // import api from "~/lib/api";
-import { Navigate } from "react-router";
+import { useNavigate } from "react-router";
 import { validateData } from "~/lib/utils";
 
 export const meta: MetaFunction = () => {
@@ -63,37 +60,61 @@ const formSchema = z.object({
 });
 
 
-export async function action({ request }: ActionFunctionArgs): Promise<ActionResponse | undefined> {
-
-    const { formData, errors } = await validateData<ActionInput>({ request, formSchema })
-
+export async function action(
+    { request }: ActionFunctionArgs
+): Promise<ActionResponse | undefined> {
+    const { formData, errors } = await validateData<ActionInput>(
+        { request, formSchema }
+    )
     if (errors === null) {
-        const response = await fetch('http://127.0.0.1:3000/auth/v0/register', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(formData),
-        });
-
-        if (response.status === 200) {
-            return redirect("/accountSetup");
-        } else {
-            return Response.json({ error: "User registration failed" })
-
+        try {
+            const response = await fetch('http://127.0.0.1:3000/auth/v0/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            });
+            if (response.status === 200) {
+                return Response.json({ success: "User registered" })
+            } else {
+                return Response.json({ error: "User registration failed" })
+            }
+        } catch (error) {
+            return Response.json(
+                { error: "Server error, the issue is being fixed" }
+            )
         }
-
     } else {
         return Response.json({ errors })
     }
 }
 
 export default function Register() {
-    // const [isLoading, setIsLoading] = useState(false);
-    // const [errorMessage, setErrorMessage] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
+    const fetcher = useFetcher<ActionResponse>()
+    const ref = useRef<HTMLFormElement>(null)
+    const navigate = useNavigate();
 
-    const actionData: ActionResponse | undefined = useActionData();
-    // console.log(actionData)
+    useEffect(() => {
+        if (fetcher.data?.success) {
+            setIsLoading(false)
+            navigate("/accountSetup")
+        } else if (fetcher.data?.error) {
+            setIsLoading(false)
+            setErrorMessage(fetcher.data.error)
+        }
+    }, [fetcher.data, navigate])
+
+    const handleSubmit = (event: React.MouseEvent<HTMLButtonElement>) => {
+        event.preventDefault()
+        setIsLoading(true)
+        if (ref.current) {
+            const formData = new FormData(ref.current)
+            fetcher.submit(formData, { method: "POST", action: "/register" })
+        }
+    }
 
     return (
         <div className="container mx-auto flex h-screen flex-col mt-32 sm:max-w-md">
@@ -101,10 +122,10 @@ export default function Register() {
                 <div className="space-y-2">
                     <h1 className="text-3xl font-bold">Create an Account</h1>
                     <p className="text-sm text-red-500 dark:text-red-400">
-                        {/* {errorMessage} */}
+                        {errorMessage}
                     </p>
                 </div>
-                <Form method="POST" className="space-y-4">
+                <fetcher.Form ref={ref} className="space-y-4">
                     <div>
                         <Label htmlFor="firstname">First name</Label>
                         <Input placeholder="Enter your first name"
@@ -112,7 +133,7 @@ export default function Register() {
                             type="text"
                         />
                         <p className="text-sm text-red-500 dark:text-red-400">
-                            {actionData?.errors?.firstname}
+                            {fetcher.data?.errors?.firstname}
                         </p>
                     </div>
                     <div>
@@ -122,7 +143,7 @@ export default function Register() {
                             type="text"
                         />
                         <p className="text-sm text-red-500 dark:text-red-400">
-                            {actionData?.errors?.lastname}
+                            {fetcher.data?.errors?.lastname}
                         </p>
                     </div>
                     <div>
@@ -133,7 +154,7 @@ export default function Register() {
                             name="email"
                         />
                         <p className="text-sm text-red-500 dark:text-red-400">
-                            {actionData?.errors?.email}
+                            {fetcher.data?.errors?.email}
                         </p>
                     </div>
                     <div>
@@ -144,7 +165,7 @@ export default function Register() {
                             name="password"
                         />
                         <p className="text-sm text-red-500 dark:text-red-400">
-                            {actionData?.errors?.password}
+                            {fetcher.data?.errors?.password}
                         </p>
                     </div>
                     <div>
@@ -155,7 +176,7 @@ export default function Register() {
                             name="confirmPassword"
                         />
                         <p className="text-sm text-red-500 dark:text-red-400">
-                            {actionData?.errors?.confirmPassword}
+                            {fetcher.data?.errors?.confirmPassword}
                         </p>
                     </div>
                     <div className="flex flex-row items-start space-x-3 space-y-0">
@@ -167,7 +188,7 @@ export default function Register() {
                         <div className="space-y-1 leading-none">
                             <Label htmlFor="terms">I agree to the terms and conditions</Label>
                             <p className="text-sm text-red-500 dark:text-red-400">
-                                {actionData?.errors?.terms}
+                                {fetcher.data?.errors?.terms}
                             </p>
                             <div className="text-sm text-gray-400">
                                 By checking this box, you agree to our{" "}
@@ -185,12 +206,12 @@ export default function Register() {
                     <Button
                         type="submit"
                         className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg flex items-center space-x-2 transition duration-200 ease-in-out transform hover:scale-105"
-                    // disabled={isLoading}
+                        disabled={isLoading}
+                        onClick={handleSubmit}
                     >
-                        {/* {isLoading ? "Creating account..." : "Create Account"} */}
-                        Create Account
+                        {isLoading ? "Creating account..." : "Create Account"}
                     </Button>
-                </Form>
+                </fetcher.Form>
                 <div className="text-center text-sm">
                     Already have an account?{" "}
                     <Link to="/login" className="font-medium text-primary hover:underline">
