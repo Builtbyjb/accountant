@@ -80,6 +80,9 @@ export function IndexPage() {
 
 	// TODO: why does the app resend the request on each key stroke
 	// TODO: change the record transaction input field placeholder
+	// TODO: Better handling of response messages
+	// TODO: Journal entry page
+	// Record button: Loading
 
 	if (action?.success) {
 		console.log(action.success)
