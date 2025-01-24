@@ -23,6 +23,7 @@ type Errors = {
 	transaction: string;
 }
 
+// Maybe add an info field
 type ActionResponse = Response & {
 	success?: string;
 	errors?: Errors;
@@ -46,21 +47,26 @@ export async function action(
 	)
 
 	if (errors === null) {
-		const response = await fetch('http://127.0.0.1:3000/api/v0/transaction', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify(formData),
-		});
+		try {
+			const response = await fetch('http://127.0.0.1:3000/api/v0/transaction', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(formData),
+			});
 
-		if (response.status === 200) {
-			return Response.json({ success: "Transaction recorded successfully" });
-		} else {
-			return Response.json({ error: "Recording transaction failed" })
+			const data = await response.json()
 
+			if (response.status === 200) {
+				return Response.json(data);
+			} else {
+				return Response.json({ error: "Recording transaction failed" })
+
+			}
+		} catch (error) {
+			return Response.json({ error: "Internal server error, we are resolving the issue" })
 		}
-
 	} else {
 		return Response.json({ errors })
 	}
@@ -72,10 +78,13 @@ export function IndexPage() {
 	const textareaRef = useRef<HTMLTextAreaElement>(null)
 	const maxLength = 200
 
+	// TODO: why does the app resend the request on each key stroke
+	// TODO: change the record transaction input field placeholder
+
 	if (action?.success) {
 		console.log(action.success)
-	} else {
-		console.log(action?.error)
+	} else if (action?.error) {
+		console.log(action.error)
 	}
 
 	// Dynamically change text area height 
@@ -137,7 +146,7 @@ export function IndexPage() {
 	)
 }
 export default function Index() {
-	const isAuth = false;
+	const isAuth = true;
 	return (
 		<>
 			{isAuth ?
