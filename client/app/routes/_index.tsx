@@ -3,12 +3,11 @@ import { AppLayout } from "~/components/layouts/AppLayout";
 import { AuthLayout } from "~/components/layouts/AuthLayout";
 import type { MetaFunction } from "@remix-run/node";
 import { useState, useRef, useEffect } from 'react'
-import { useActionData, Link, Form } from '@remix-run/react';
+import { useActionData, useFetcher } from '@remix-run/react';
 import type { ActionFunctionArgs } from "@remix-run/node";
 import { Button } from "~/components/ui/button"
 import { Textarea } from "~/components/ui/textarea"
-import { Send } from 'lucide-react'
-import { Outlet, redirect } from "@remix-run/react";
+import { Send, Loader } from 'lucide-react'
 import * as z from "zod";
 import { validateData } from "~/lib/utils";
 
@@ -75,20 +74,15 @@ export async function action(
 export function IndexPage() {
 	const action = useActionData<ActionResponse | undefined>();
 	const [input, setInput] = useState('')
+	const [isLoading, setIsLoading] = useState(false);
 	const textareaRef = useRef<HTMLTextAreaElement>(null)
+	const formRef = useRef<HTMLFormElement>(null)
+	const fetcher = useFetcher<ActionResponse>()
 	const maxLength = 200
 
 	// TODO: why does the app resend the request on each key stroke
-	// TODO: change the record transaction input field placeholder
 	// TODO: Better handling of response messages
 	// TODO: Journal entry page
-	// Record button: Loading
-
-	if (action?.success) {
-		console.log(action.success)
-	} else if (action?.error) {
-		console.log(action.error)
-	}
 
 	// Dynamically change text area height 
 	const handleInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -104,22 +98,39 @@ export function IndexPage() {
 		}
 	}
 
+	const handleSubmit = (event: React.MouseEvent<HTMLButtonElement>) => {
+		event.preventDefault()
+		setIsLoading(true)
+		if (formRef.current) {
+			const formData = new FormData(formRef.current)
+			fetcher.submit(formData, { method: "POST" })
+		}
+	}
+
 	useEffect(() => {
 		adjustTextareaHeight()
-	}, [])
+
+		if (fetcher.data?.success) {
+			setIsLoading(false)
+			console.log(fetcher.data.success)
+		} else if (fetcher.data?.error) {
+			setIsLoading(false)
+			console.log(fetcher.data.error)
+		}
+	}, [fetcher.data])
 
 	return (
 		<div className="items-center justify-center flex h-full">
 			<div className="w-full max-w-2xl">
 				<h1 className="text-2xl font-semibold text-gray-100 mb-8">Record a transaction</h1>
-				<Form method="POST" className="space-y-4">
+				<fetcher.Form ref={formRef} className="space-y-4">
 					<Textarea
 						id="transaction"
 						name="transaction"
 						ref={textareaRef}
 						value={input}
 						onChange={handleInput}
-						placeholder="Type your question or request here..."
+						placeholder="Type your transaction here..."
 						className="w-full min-h-[6rem] p-4 text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 ease-in-out placeholder-gray-400 resize-none overflow-hidden"
 						maxLength={maxLength}
 					/>
@@ -135,15 +146,26 @@ export function IndexPage() {
 						<Button type="submit"
 							className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg flex items-center space-x-2 transition duration-200 ease-in-out transform hover:scale-105"
 							disabled={input.trim().length === 0}
+							onClick={handleSubmit}
 						>
-							<span>Submit</span>
-							<Send className="w-4 h-4" />
+							{isLoading ? (
+								<>
+									<span>Submitting</span>
+									<Loader className="w-4 h-4" />
+								</>
+
+							) : (
+								<>
+									<span>Submit</span>
+									<Send className="w-4 h-4" />
+								</>
+							)}
 						</Button>
 						<span className="bottom-2 right-2 text-sm text-gray-400">
 							{input.length}/{maxLength}
 						</span>
 					</div>
-				</Form>
+				</fetcher.Form>
 			</div>
 		</div>
 	)

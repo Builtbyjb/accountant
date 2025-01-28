@@ -11,41 +11,40 @@ import (
 	"google.golang.org/api/option"
 )
 
-// AI response struct to store unmarshalled ai response JSON
+// AI response struct to store unmarshaled ai response JSON
 type TransactionResponse struct {
 	ClarificationNeeded bool     `json:"clarificationNeeded"`
 	Questions           []string `json:"questions"`
 	Date                string   `json:"date"`
 	AccountsAffected    []string `json:"accountsAffected"`
 	JournalEntry        []struct {
-		Account     string `json:"account"`
-		Debit       string `json:"debit"`
-		Credit      string `json:"credit"`
-		Description string `json:"description"`
+		Account string `json:"account"`
+		Debit   string `json:"debit"`
+		Credit  string `json:"credit"`
 	} `json:"journalEntry"`
+	Description string `json:"description"`
 }
 
 // AI response format
 var transactionResponseFormat = `
 {
-  "clarificationNeeded":"", // can be either true or false, true if you need further clarification
-  "questions":[], // a list of the questions you need answered for you to accurately record the transaction
-  "date": "", // use the current date if no date is provided else use the provided date formated correctly (dd-mm-yyyy)
-  "accountsAffected": [], //A list of the affected accounts
-  "journalEntry": [ // For all the accounts affected
-    {
-      "account": "", // Account name
-      "debit": "", // debit ammount
-      "credit": "", // credit ammount
-      "description": "", // Why the account was affected, and the action taken
-    },
-    {
-      "account": "", // Account name
-      "debit": "", // Debit ammount
-      "credit": "", // Credit ammount
-      "description": "", // Why the account was affected, and the action taken
-    }
-  ]
+	"clarificationNeeded":"", // can be either true or false, true if you need further clarification
+	"questions":[], // a list of the questions you need answered for you to accurately record the transaction
+	"date": "", // use the current date if no date is provided else use the provided date formatted correctly (dd-mm-yyyy)
+	"accountsAffected": [], //A list of the affected accounts
+	"journalEntry": [ // For all the accounts affected
+		{
+    		"account": "", // Account name
+    		"debit": "", // debit amount
+    		"credit": "", // credit amount
+    	},
+    	{
+    		"account": "", // Account name
+      		"debit": "", // Debit amount
+      		"credit": "", // Credit amount
+    	}
+  	]
+	"description": "", // Why the accounts were affected, and the actions taken
 }
 `
 
@@ -95,6 +94,8 @@ func TalkToGemini(prompt string, apiKey string) (TransactionResponse, error) {
 	// 	},
 	// }
 
+	// ToDo: Should be able to infer the date if no date is specified
+
 	response, err := session.SendMessage(ctx, genai.Text(prompt))
 	if err != nil {
 		return TransactionResponse{}, fmt.Errorf("Error sending message: %w", err)
@@ -136,7 +137,7 @@ func sanitizeResponse(response *genai.GenerateContentResponse) (TransactionRespo
 	// Unmarshal the cleaned string into the struct
 	unMarshalErr := json.Unmarshal([]byte(cleanedString), &r)
 	if unMarshalErr != nil {
-		return TransactionResponse{}, fmt.Errorf("error unmarshalling JSON: %w", unMarshalErr)
+		return TransactionResponse{}, fmt.Errorf("error unmarshaling JSON: %w", unMarshalErr)
 	}
 
 	return r, nil
