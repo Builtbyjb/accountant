@@ -3,7 +3,7 @@ import { twMerge } from "tailwind-merge"
 import { ZodError, ZodSchema } from "zod"
 
 interface FormValidate {
-  request: Request,
+  formData: FormData,
   formSchema: ZodSchema,
 }
 
@@ -19,13 +19,12 @@ export function logOut() {
 }
 
 export function refreshToken() {
-  return {access: "access token", refresh: "refresh token"}
+  return { access: "access token", refresh: "refresh token" }
 }
 
 // validate form data
-export async function validateData<ActionInput>({ request, formSchema}: FormValidate) {
-    const formData = await request.formData();
-    const data = Object.fromEntries(formData);
+export async function validateData<ActionInput>({ formData, formSchema }: FormValidate) {
+  const data = Object.fromEntries(formData);
 
   try {
     const validatedData = formSchema.parse(data) as ActionInput;
@@ -33,9 +32,9 @@ export async function validateData<ActionInput>({ request, formSchema}: FormVali
 
   } catch (error) {
     const errors = error as ZodError<ActionInput>;
-      
+
     return {
-      formData: data,
+      validData: data,
       errors: errors.issues.reduce((acc: ActionError<ActionInput>, curr) => {
         const key = curr.path[0] as keyof ActionInput;
         acc[key] = curr.message

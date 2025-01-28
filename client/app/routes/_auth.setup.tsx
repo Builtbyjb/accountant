@@ -1,4 +1,4 @@
-export default function AccountSetup() {
+export default function Setup() {
     return (
         <>
             Account Setup

@@ -37,19 +37,24 @@ func HandleTransaction(c *fiber.Ctx) error {
 
 	prompt, err := generatePrompt(t.Transaction)
 	if err != nil {
-		log.Fatalf("Invalid transaction")
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"error": "Invalid transaction",
+		})
 	}
 
-	response, err := aimodels.TalkToGemini(prompt, GEMINI_API_KEY)
+	response, err := aimodels.Gemini(prompt, GEMINI_API_KEY)
 	if err != nil {
 		log.Fatalf("Error sanitizing response: %v", err)
 	}
 
 	if response.ClarificationNeeded == true {
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
-			"success": "More information is needed to accurately record the transaction",
+			"error": "More information is needed to accurately record the transaction",
+			"info":  response.Questions,
 		})
 	}
+
+	// TODO: Add response to a database
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"success": "Transaction recorded successfully",
@@ -61,7 +66,9 @@ func generatePrompt(transaction string) (string, error) {
 	if len(transaction) == 0 {
 		return "", errors.New("Transaction cannot be empty")
 	}
-	prompt := fmt.Sprintf(`detemine the affected accounts and 
-  create a journal entry of this transaction \" %s \"`, transaction)
+
+	prompt := fmt.Sprintf(`determine the affected accounts and 
+  		create a journal entry of this transaction \" %s \"`, transaction)
+
 	return prompt, nil
 }
