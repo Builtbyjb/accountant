@@ -25,7 +25,9 @@ func main() {
 
 	// health check
 	app.Get("/ping", func(c *fiber.Ctx) error {
-		return c.SendString("pong!")
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"ping": "pong!",
+		})
 	})
 
 	// Protected routes group

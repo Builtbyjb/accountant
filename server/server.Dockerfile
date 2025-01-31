@@ -3,9 +3,15 @@ FROM golang:1.23.5
 # set working directory
 WORKDIR /app/server
 
-# copies local files to the docker container
+# Install air for hot reload
+RUN go install github.com/air-verse/air@latest
+
+# Copies local files to the docker container
 COPY . .
 
 RUN go mod tidy
+
+# Ensure air binary is in the path
+ENV PATH="/go/bin:${PATH}"
 
 EXPOSE 3000

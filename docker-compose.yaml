@@ -3,18 +3,49 @@ services:
         build:
             dockerfile: client.Dockerfile
             context: client/
+        develop:
+            watch:
+                - action: sync
+                  path: ./client
+                  target: /app/client
+                  ignore:
+                      - node_modules/
         ports:
             - "5173:5173"
+        depends_on:
+            server:
+                condition: service_healthy
         command: npm run dev
-        volumes:
-            - ./client:/app/client
+        # volumes:
+        #     - ./client:/app/client
 
     server:
         build:
             dockerfile: server.Dockerfile
             context: server/
+        develop:
+            watch:
+                - action: sync
+                  path: ./server
+                  target: /app/server
         ports:
             - "3000:3000"
-        command: go run main.go
-        volumes:
-            - ./server:/app/server
+        env_file:
+            - ./server/.env
+        healthcheck:
+            test: [ "CMD", "curl", "-f", "http://127.0.0.1:3000/ping" ]
+            interval: 30s
+            timeout: 30s
+            retries: 5
+            start_period: 30s
+        command: air main.go
+        # depends_on:
+        #     db:
+        #         condition: service_started
+        # volumes:
+        #     - ./server:/app/server
+
+    db:
+        image: postgres:17
+        ports:
+            - "5132:5132"

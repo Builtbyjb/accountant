@@ -10,4 +10,4 @@ dw:
 	docker compose down
 
 up: 
-	docker compose up --build
+	docker compose up --watch
