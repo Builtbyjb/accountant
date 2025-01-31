@@ -1,7 +1,7 @@
 services:
     client:
         build:
-            dockerfile: client.Dockerfile
+            dockerfile: Dockerfile.dev
             context: client/
         develop:
             watch:
@@ -21,7 +21,7 @@ services:
 
     server:
         build:
-            dockerfile: server.Dockerfile
+            dockerfile: Dockerfile.dev
             context: server/
         develop:
             watch:
@@ -38,10 +38,10 @@ services:
             timeout: 30s
             retries: 5
             start_period: 30s
-        command: air main.go
-        # depends_on:
-        #     db:
-        #         condition: service_started
+        command: air
+        depends_on:
+            db:
+                condition: service_started
         # volumes:
         #     - ./server:/app/server
 

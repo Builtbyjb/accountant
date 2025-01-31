@@ -6,8 +6,12 @@ fd:
 bd: 
 	docker compose run --service-ports server bash
 
+# Start database bash shell
+db: 
+	docker compose run --service-ports server bash
+
 dw:
 	docker compose down
 
 up: 
-	docker compose up --watch
+	docker compose -f docker-compose.dev.yaml up --watch
