@@ -45,7 +45,7 @@ export async function action(
 	const jsonData = Object.fromEntries(formData);
 
 	try {
-		const response = await fetch('http://127.0.0.1:3000/api/v0/transaction', {
+		const response = await fetch('http://server:3000/api/v0/transaction', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -62,6 +62,7 @@ export async function action(
 
 		}
 	} catch (error) {
+		console.log(error)
 		return Response.json({ error: "Internal server error, we are resolving the issue" })
 	}
 }

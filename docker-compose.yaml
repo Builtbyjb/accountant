@@ -15,6 +15,6 @@ services:
             context: server/
         ports:
             - "3000:3000"
-        command: go run main.go -b 0.0.0.0
+        command: go run main.go
         volumes:
             - ./server:/app/server

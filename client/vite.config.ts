@@ -21,8 +21,10 @@ export default defineConfig({
     }),
     tsconfigPaths(),
   ],
-  // server: {
-  //   host: '192.168.2.182',
-  //   port: 8001,
-  // },
+  server: {
+    // host: '192.168.2.182',
+    host: '0.0.0.0',
+    // port: 8001,
+    port: 5173,
+  },
 });
