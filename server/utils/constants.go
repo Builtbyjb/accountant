@@ -7,9 +7,9 @@ type TransactionResponse struct {
 	Date                string   `json:"date"`
 	AccountsAffected    []string `json:"accountsAffected"`
 	JournalEntry        []struct {
-		Account string `json:"account"`
-		Debit   string `json:"debit"`
-		Credit  string `json:"credit"`
+		AccountName string `json:"accountName"`
+		AccountType string `json:"AccountType"`
+		Amount      string `json:"amount"`
 	} `json:"journalEntry"`
 	Description string `json:"description"`
 }
@@ -22,15 +22,10 @@ var TransactionResponseFormat = `
 	"accountsAffected": [], //A list of the affected accounts
 	"journalEntry": [ // For all the accounts affected
 		{
-    		"account": "", // Account name
-    		"debit": "", // debit amount
-    		"credit": "", // credit amount
+    		"accountName": "", // Account name
+    		"accountType": "", // Account type, credit or debit
+    		"amount": "", // Amount 
     	},
-    	{
-    		"account": "", // Account name
-      		"debit": "", // Debit amount
-      		"credit": "", // Credit amount
-    	}
   	]
 	"description": "", // Why the accounts were affected, and the actions taken
 }

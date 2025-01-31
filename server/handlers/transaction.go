@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"server/aimodels"
+	"server/agents"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
@@ -42,7 +42,7 @@ func HandleTransaction(c *fiber.Ctx) error {
 		})
 	}
 
-	response, err := aimodels.Gemini(prompt, GEMINI_API_KEY)
+	response, err := agents.Gemini(prompt, GEMINI_API_KEY)
 	if err != nil {
 		log.Fatalf("Error sanitizing response: %v", err)
 	}

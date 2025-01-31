@@ -22,7 +22,6 @@ type Errors = {
 	transaction: string;
 }
 
-// Maybe add an info field
 type ActionResponse = Response & {
 	success?: string;
 	errors?: Errors;

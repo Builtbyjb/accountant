@@ -1,0 +1,20 @@
+services:
+    client:
+        build:
+            dockerfile: client.Dockerfile
+            context: client/
+        ports:
+            - "5173:5173"
+        command: npm run dev
+        volumes:
+            - ./client:/app/client
+
+    server:
+        build:
+            dockerfile: server.Dockerfile
+            context: server/
+        ports:
+            - "3000:3000"
+        command: go run main.go -b 0.0.0.0
+        volumes:
+            - ./server:/app/server

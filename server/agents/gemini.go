@@ -1,4 +1,4 @@
-package aimodels
+package agents
 
 import (
 	"context"

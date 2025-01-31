@@ -19,7 +19,14 @@ func main() {
 		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
 	}))
 
+	// TODO: refactor api endpoints
+
 	api := app.Group("/api")
+
+	// health check
+	app.Get("/ping", func(c *fiber.Ctx) error {
+		return c.SendString("pong!")
+	})
 
 	// Protected routes group
 	// api := app.Group("/api", middleware.AuthMiddleware())
@@ -31,5 +38,6 @@ func main() {
 	v0Auth.Post("/register", handlers.Register)
 	v0Auth.Post("/login", handlers.Login)
 
-	log.Fatal(app.Listen("127.0.0.1:3000"))
+	log.Fatal(app.Listen("0.0.0.0:3000"))
+
 }
