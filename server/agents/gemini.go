@@ -43,20 +43,6 @@ func Gemini(prompt string, apiKey string) (utils.TransactionResponse, error) {
 	}
 
 	session := model.StartChat()
-	// session.History = []*genai.Content{
-	// 	{
-	// 		Role: "user",
-	// 		Parts: []genai.Part{
-	// 			genai.Text("Purchase inventory worth $5000"),
-	// 		},
-	// 	},
-	// 	{
-	// 		Role: "model",
-	// 		Parts: []genai.Part{
-	// 			genai.Text("```json\n{\n  \"query\": \"Purchase inventory worth $5000\",\n  \"clarifications_needed\": [\n    {\n      \"question\": \"What type of inventory is being purchased?\",\n      \"options\": [] \n    },\n    {\n      \"question\": \"From whom is the inventory being purchased?\",\n      \"options\": []\n    },\n    {\n      \"question\": \"What is the payment method?\",\n      \"options\": []\n    },\n    {\n      \"question\": \"Is there a purchase order number or other relevant identifier?\",\n      \"options\": []\n    },\n    {\n      \"question\": \"What is the date of the purchase?\",\n      \"options\": []\n    }\n\n  ]\n}\n```\n"),
-	// 		},
-	// 	},
-	// }
 
 	response, err := session.SendMessage(ctx, genai.Text(prompt))
 	if err != nil {

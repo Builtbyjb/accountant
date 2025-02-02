@@ -44,7 +44,7 @@ func HandleTransaction(c *fiber.Ctx) error {
 
 	response, err := agents.Gemini(prompt, GEMINI_API_KEY)
 	if err != nil {
-		log.Fatalf("Error sanitizing response: %v", err)
+		log.Fatalf("AI response error: %v", err)
 	}
 
 	if response.ClarificationNeeded == true {
