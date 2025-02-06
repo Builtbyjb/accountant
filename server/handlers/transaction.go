@@ -5,18 +5,23 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 
 	"server/agents"
+	"server/database"
+	"server/utils"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"github.com/joho/godotenv"
+	"gorm.io/gorm"
 )
 
 type Transaction struct {
 	Transaction string `json:"transaction"`
 }
 
-func HandleTransaction(c *fiber.Ctx) error {
+func (h *Handler) HandleTransaction(c *fiber.Ctx) error {
 
 	// Load .env file
 	err := godotenv.Load()
@@ -47,14 +52,32 @@ func HandleTransaction(c *fiber.Ctx) error {
 		log.Fatalf("AI response error: %v", err)
 	}
 
-	if response.ClarificationNeeded == true {
+	if response.ClarificationNeeded {
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
 			"error": "More information is needed to accurately record the transaction",
 			"info":  response.Questions,
 		})
 	}
 
-	// TODO: Add response to a database
+	// Add response to database
+	db := h.DB
+
+	journal := database.Journal{
+		Id:          uuid.New(),
+		Date:        response.Date,
+		Description: response.Description,
+	}
+
+	// create journal entry
+	journalResult := db.Create(&journal)
+	if journalResult.Error != nil {
+		log.Fatalf("Could not create journal entry: %v", journalResult.Error)
+	}
+
+	accountErr := addAccounts(journal.Id, db, response.JournalEntry)
+	if accountErr != nil {
+		log.Fatalf("Count not create account: %v", accountErr)
+	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"success": "Transaction recorded successfully",
@@ -68,7 +91,37 @@ func generatePrompt(transaction string) (string, error) {
 	}
 
 	prompt := fmt.Sprintf(`determine the affected accounts and 
-  		create a journal entry of this transaction \" %s \"`, transaction)
+  		create a journal entry of this transaction "%s"`, transaction)
 
 	return prompt, nil
+}
+
+// Add journal entry accounts to the database
+func addAccounts(journalId uuid.UUID, db *gorm.DB, journalEntries []utils.JournalEntry) error {
+
+	var r *gorm.DB
+
+	for i := range len(journalEntries) {
+
+		amount, err := strconv.Atoi(journalEntries[i].Amount)
+		if err != nil {
+			log.Fatalf("unable to convert amount string to int: %v", err)
+		}
+
+		account := database.Account{
+			Id:          uuid.New(),
+			Name:        journalEntries[i].AccountName,
+			JournalId:   journalId,
+			AccountType: journalEntries[i].AccountType,
+			Amount:      amount,
+		}
+
+		r = db.Create(&account)
+		if r.Error != nil {
+			return fmt.Errorf("Count not add account to database: %w", r.Error)
+		} else {
+			continue
+		}
+	}
+	return nil
 }

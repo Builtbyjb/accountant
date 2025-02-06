@@ -1,17 +1,19 @@
 package utils
 
+type JournalEntry struct {
+	AccountName string `json:"accountName"`
+	AccountType string `json:"AccountType"`
+	Amount      string `json:"amount"`
+}
+
 // AI response struct to store unmarshaled AI response
 type TransactionResponse struct {
-	ClarificationNeeded bool     `json:"clarificationNeeded"`
-	Questions           []string `json:"questions"`
-	Date                string   `json:"date"`
-	AccountsAffected    []string `json:"accountsAffected"`
-	JournalEntry        []struct {
-		AccountName string `json:"accountName"`
-		AccountType string `json:"AccountType"`
-		Amount      string `json:"amount"`
-	} `json:"journalEntry"`
-	Description string `json:"description"`
+	ClarificationNeeded bool           `json:"clarificationNeeded"`
+	Questions           []string       `json:"questions"`
+	Date                string         `json:"date"`
+	AccountsAffected    []string       `json:"accountsAffected"`
+	JournalEntry        []JournalEntry `json:"journalEntry"`
+	Description         string         `json:"description"`
 }
 
 var TransactionResponseFormat = `

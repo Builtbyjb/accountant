@@ -53,7 +53,7 @@ func Gemini(prompt string, apiKey string) (utils.TransactionResponse, error) {
 
 	res, err := sanitizeResponse(response)
 	if err != nil {
-		return utils.TransactionResponse{}, fmt.Errorf("Error sanitizing  Gemini response: %w", err)
+		return utils.TransactionResponse{}, fmt.Errorf("Error sanitizing Gemini response: %w", err)
 	}
 
 	return res, nil
