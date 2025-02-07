@@ -8,7 +8,7 @@ import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-// import api from "~/lib/api";
+import api from "~/lib/api";
 import { Navigate } from "react-router";
 import { validateData } from "~/lib/utils";
 import { redirect } from "@remix-run/node";

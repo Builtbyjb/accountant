@@ -81,7 +81,7 @@ func sanitizeResponse(response *genai.GenerateContentResponse) (utils.Transactio
 	cleanedString = strings.ReplaceAll(cleanedString, "\\\"", "\"")
 	cleanedString = strings.ReplaceAll(cleanedString, "\\", "")
 
-	fmt.Println(cleanedString)
+	// fmt.Println(cleanedString)
 
 	var r utils.TransactionResponse
 

@@ -13,11 +13,13 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+// Logout user
 export function logOut() {
   console.log("User logged out")
   return null
 }
 
+// Get refresh token
 export function refreshToken() {
   return { access: "access token", refresh: "refresh token" }
 }

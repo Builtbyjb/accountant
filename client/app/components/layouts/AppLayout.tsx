@@ -1,4 +1,4 @@
-import { NavSidebar } from "~/components/NavSidebar";
+import { NavSidebar } from "~/components/navbar/NavSidebar";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "~/components/ui/sidebar"
 
 export function AppLayout({ children }: { children: React.ReactNode }) {

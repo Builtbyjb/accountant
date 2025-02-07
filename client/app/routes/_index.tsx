@@ -3,13 +3,14 @@ import { AppLayout } from "~/components/layouts/AppLayout";
 import { AuthLayout } from "~/components/layouts/AuthLayout";
 import type { MetaFunction } from "@remix-run/node";
 import { useState, useRef, useEffect } from 'react'
-import { useActionData, useFetcher } from '@remix-run/react';
+import { useFetcher } from '@remix-run/react';
 import type { ActionFunctionArgs } from "@remix-run/node";
 import { Button } from "~/components/ui/button"
 import { Textarea } from "~/components/ui/textarea"
 import { Send, Loader } from 'lucide-react'
 import * as z from "zod";
 import { validateData } from "~/lib/utils";
+import api from "~/lib/api";
 
 export const meta: MetaFunction = () => {
 	return [
@@ -45,15 +46,9 @@ export async function action(
 	const jsonData = Object.fromEntries(formData);
 
 	try {
-		const response = await fetch('http://server:3000/api/v0/transaction', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify(jsonData),
-		});
+		const response = await api.post('/api/transaction', jsonData);
 
-		const data = await response.json()
+		const data = await response.data
 
 		if (response.status === 200) {
 			return Response.json(data);
@@ -141,6 +136,7 @@ export function IndexPage() {
 	return (
 		<div className="items-center justify-center flex h-full">
 			<div className="w-full max-w-2xl">
+				{/* TODO: include a view journal entry link */}
 				<h1 className="text-2xl font-semibold text-gray-100 mb-6">Record a transaction</h1>
 				{message.error ? (
 					<p className="text-sm text-red-500 dark:text-red-400">

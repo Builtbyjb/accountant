@@ -15,10 +15,10 @@ import {
 } from "lucide-react"
 // import { Dialog, DialogContent, DialogTitle } from '@radix-ui/react-dialog';
 
-import { NavMain } from "~/components/nav-main"
-import { NavProjects } from "~/components/nav-projects"
-import { NavUser } from "~/components/nav-user"
-import { TeamSwitcher } from "~/components/team-switcher"
+import { NavMain } from "~/components/navbar/navMain"
+// import { NavProjects } from "~/components/navProjects"
+import { NavUser } from "~/components/navbar/navUser"
+import { TeamSwitcher } from "~/components/navbar/teamSwitcher"
 import {
     Sidebar,
     SidebarContent,
@@ -32,7 +32,7 @@ import {
 // This is sample data.
 const data = {
     user: {
-        name: "shadcn",
+        name: "Example User",
         email: "m@example.com",
         // avatar: "/avatars/shadcn.jpg",
 
@@ -43,16 +43,16 @@ const data = {
             logo: GalleryVerticalEnd,
             plan: "Enterprise",
         },
-        {
-            name: "Acme Corp.",
-            logo: AudioWaveform,
-            plan: "Startup",
-        },
-        {
-            name: "Evil Corp.",
-            logo: Command,
-            plan: "Free",
-        },
+        // {
+        //     name: "Acme Corp.",
+        //     logo: AudioWaveform,
+        //     plan: "Startup",
+        // },
+        // {
+        //     name: "Evil Corp.",
+        //     logo: Command,
+        //     plan: "Free",
+        // },
     ],
     navMain: [
         {
@@ -141,23 +141,23 @@ const data = {
             ],
         },
     ],
-    projects: [
-        {
-            name: "Design Engineering",
-            url: "#",
-            icon: Frame,
-        },
-        {
-            name: "Sales & Marketing",
-            url: "#",
-            icon: PieChart,
-        },
-        {
-            name: "Travel",
-            url: "#",
-            icon: Map,
-        },
-    ],
+    // projects: [
+    //     {
+    //         name: "Design Engineering",
+    //         url: "#",
+    //         icon: Frame,
+    //     },
+    //     {
+    //         name: "Sales & Marketing",
+    //         url: "#",
+    //         icon: PieChart,
+    //     },
+    //     {
+    //         name: "Travel",
+    //         url: "#",
+    //         icon: Map,
+    //     },
+    // ],
 }
 
 export function NavSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -175,7 +175,7 @@ export function NavSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarHeader>
             <SidebarContent>
                 <NavMain items={data.navMain} />
-                <NavProjects projects={data.projects} />
+                {/* <NavProjects projects={data.projects} /> */}
             </SidebarContent>
             <SidebarFooter>
                 <NavUser user={data.user} />

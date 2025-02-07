@@ -1,4 +1,4 @@
-import NavTopbar from "~/components/NavTopbar";
+import NavTopbar from "~/components/navbar/NavTopbar";
 
 export function AuthLayout({ children }: { children: React.ReactNode }) {
     return (

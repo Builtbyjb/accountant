@@ -71,12 +71,12 @@ func (h *Handler) HandleTransaction(c *fiber.Ctx) error {
 	// create journal entry
 	journalResult := db.Create(&journal)
 	if journalResult.Error != nil {
-		log.Fatalf("Could not create journal entry: %v", journalResult.Error)
+		log.Fatalf("Error creating journal entry: %v", journalResult.Error)
 	}
 
 	accountErr := addAccounts(journal.Id, db, response.JournalEntry)
 	if accountErr != nil {
-		log.Fatalf("Count not create account: %v", accountErr)
+		log.Fatalf("Error creating accounts: %v", accountErr)
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
@@ -86,6 +86,7 @@ func (h *Handler) HandleTransaction(c *fiber.Ctx) error {
 
 // Sanitize transaction prompt
 func generatePrompt(transaction string) (string, error) {
+
 	if len(transaction) == 0 {
 		return "", errors.New("Transaction cannot be empty")
 	}
