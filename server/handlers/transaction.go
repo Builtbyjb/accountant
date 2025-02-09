@@ -118,12 +118,10 @@ func addCreditAccounts(journalId uuid.UUID, db *gorm.DB, credits []utils.Account
 		}
 
 		credit := database.Credit{
-			Id:        uuid.New(),
-			JournalId: journalId,
-			Account: database.AccountDetail{
-				AccountName: credits[i].AccountName,
-				Amount:      amount,
-			},
+			Id:          uuid.New(),
+			JournalId:   journalId,
+			AccountName: credits[i].AccountName,
+			Amount:      amount,
 		}
 
 		r = db.Create(&credit)
@@ -149,12 +147,10 @@ func addDebitAccounts(journalId uuid.UUID, db *gorm.DB, debits []utils.AccountDe
 		}
 
 		debit := database.Debit{
-			Id:        uuid.New(),
-			JournalId: journalId,
-			Account: database.AccountDetail{
-				AccountName: debits[i].AccountName,
-				Amount:      amount,
-			},
+			Id:          uuid.New(),
+			JournalId:   journalId,
+			AccountName: debits[i].AccountName,
+			Amount:      amount,
 		}
 
 		r = db.Create(&debit)

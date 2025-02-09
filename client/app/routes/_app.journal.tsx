@@ -3,7 +3,6 @@ import type { MetaFunction } from "@remix-run/node";
 import FilterControls from "~/components/journal/filterControls";
 import { Suspense } from "react";
 import Loading from "~/components/Loading";
-import { UUIDTypes } from "uuid";
 import { useLoaderData } from "@remix-run/react";
 import api from "~/lib/api";
 import { JournalEntry } from "~/lib/constants";
@@ -26,6 +25,7 @@ export const loader = async (): Promise<LoaderResponse | LoaderError> => {
     const response = await api.get("/api/journal");
     const data = await response.data;
     if (response.status === 200) {
+      // console.log(data);
       return data.data;
     } else {
       return { error: "Request error" };

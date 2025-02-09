@@ -33,7 +33,7 @@ export default function JournalTable({ journalEntries }: JournalProps) {
               <TableRow key={uuidv4()}>
                 <TableCell>{entry.date}</TableCell>
               </TableRow>
-              {entry.debit.map((d: AccountDetails) => (
+              {entry.debits.map((d: AccountDetails) => (
                 <TableRow key={uuidv4()}>
                   <TableCell></TableCell>
                   <TableCell>{d.accountName}</TableCell>
@@ -41,7 +41,7 @@ export default function JournalTable({ journalEntries }: JournalProps) {
                   <TableCell></TableCell>
                 </TableRow>
               ))}
-              {entry.credit.map((c: AccountDetails) => (
+              {entry.credits.map((c: AccountDetails) => (
                 <TableRow key={uuidv4()}>
                   <TableCell></TableCell>
                   <TableCell>

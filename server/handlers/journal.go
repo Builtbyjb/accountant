@@ -22,6 +22,12 @@ func (h *Handler) HandleJournal(c *fiber.Ctx) error {
 		log.Fatalf("error fetching journal entries: %v", err)
 	}
 
+	// jsondata, err := json.MarshalIndent(journalEntries, "", "  ")
+	// if err != nil {
+	// 	log.Fatalf("error: %v", err)
+	// }
+	// fmt.Println(string(jsondata))
+
 	response := Response{
 		Message: "Journal entries retrieved successfully",
 		Data:    journalEntries,
@@ -58,7 +64,7 @@ func getJournalEntries(db *gorm.DB) ([]database.JournalEntry, error) {
 			return nil, fmt.Errorf("error fetching debit accounts: %v", debitResult.Error)
 		}
 
-		JournalEntries = append(J, database.JournalEntry{
+		JournalEntries = append(JournalEntries, database.JournalEntry{
 			Id:          J[i].Id,
 			Date:        J[i].Date,
 			Debits:      debitAccounts,
