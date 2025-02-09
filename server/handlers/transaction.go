@@ -62,10 +62,10 @@ func (h *Handler) HandleTransaction(c *fiber.Ctx) error {
 	// Add response to database
 	db := h.DB
 
-	journal := database.Journal{
+	journal := database.JournalEntry{
 		Id:          uuid.New(),
-		Date:        response.Date,
-		Description: response.Description,
+		Date:        response.JournalEntry.Date,
+		Description: response.JournalEntry.Description,
 	}
 
 	// create journal entry
@@ -74,9 +74,18 @@ func (h *Handler) HandleTransaction(c *fiber.Ctx) error {
 		log.Fatalf("Error creating journal entry: %v", journalResult.Error)
 	}
 
-	accountErr := addAccounts(journal.Id, db, response.JournalEntry)
-	if accountErr != nil {
-		log.Fatalf("Error creating accounts: %v", accountErr)
+	// INFO: Can use channels to run the functions concurrently
+
+	// Add credit accounts
+	creditAccountErr := addCreditAccounts(journal.Id, db, response.JournalEntry.Credits)
+	if creditAccountErr != nil {
+		log.Fatalf("Error creating accounts: %v", creditAccountErr)
+	}
+
+	// Add debit accounts
+	debitAccountErr := addDebitAccounts(journal.Id, db, response.JournalEntry.Debits)
+	if debitAccountErr != nil {
+		log.Fatalf("Error creating accounts: %v", debitAccountErr)
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
@@ -91,35 +100,66 @@ func generatePrompt(transaction string) (string, error) {
 		return "", errors.New("Transaction cannot be empty")
 	}
 
-	prompt := fmt.Sprintf(`determine the affected accounts and 
-  		create a journal entry of this transaction "%s"`, transaction)
+	prompt := fmt.Sprintf(`Create a journal entry for this transaction "%s"`, transaction)
 
 	return prompt, nil
 }
 
-// Add journal entry accounts to the database
-func addAccounts(journalId uuid.UUID, db *gorm.DB, journalEntries []utils.JournalEntry) error {
+// Add journal entry credit accounts to the database
+func addCreditAccounts(journalId uuid.UUID, db *gorm.DB, credits []utils.AccountDetail) error {
 
 	var r *gorm.DB
 
-	for i := range len(journalEntries) {
+	for i := range len(credits) {
 
-		amount, err := strconv.Atoi(journalEntries[i].Amount)
+		amount, err := strconv.Atoi(credits[i].Amount)
 		if err != nil {
-			log.Fatalf("unable to convert amount string to int: %v", err)
+			return fmt.Errorf("unable to convert credit amount string to int: %v", err)
 		}
 
-		account := database.Account{
-			Id:          uuid.New(),
-			Name:        journalEntries[i].AccountName,
-			JournalId:   journalId,
-			AccountType: journalEntries[i].AccountType,
-			Amount:      amount,
+		credit := database.Credit{
+			Id:        uuid.New(),
+			JournalId: journalId,
+			Account: database.AccountDetail{
+				AccountName: credits[i].AccountName,
+				Amount:      amount,
+			},
 		}
 
-		r = db.Create(&account)
+		r = db.Create(&credit)
 		if r.Error != nil {
-			return fmt.Errorf("Count not add account to database: %w", r.Error)
+			return fmt.Errorf("count not add credit account to database: %w", r.Error)
+		} else {
+			continue
+		}
+	}
+	return nil
+}
+
+// Add journal entry debit accounts to the database
+func addDebitAccounts(journalId uuid.UUID, db *gorm.DB, debits []utils.AccountDetail) error {
+
+	var r *gorm.DB
+
+	for i := range len(debits) {
+
+		amount, err := strconv.Atoi(debits[i].Amount)
+		if err != nil {
+			return fmt.Errorf("unable to convert amount string to int: %v", err)
+		}
+
+		debit := database.Debit{
+			Id:        uuid.New(),
+			JournalId: journalId,
+			Account: database.AccountDetail{
+				AccountName: debits[i].AccountName,
+				Amount:      amount,
+			},
+		}
+
+		r = db.Create(&debit)
+		if r.Error != nil {
+			return fmt.Errorf("count not add account to database: %w", r.Error)
 		} else {
 			continue
 		}

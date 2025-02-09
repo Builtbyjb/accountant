@@ -22,8 +22,8 @@ func Gemini(prompt string, apiKey string) (utils.TransactionResponse, error) {
 	defer client.Close()
 
 	// model := client.GenerativeModel("gemini-1.5-flash")
-	// model := client.GenerativeModel("gemini-1.5-pro")
-	model := client.GenerativeModel("gemini-2.0-flash-thinking-exp-01-21")
+	model := client.GenerativeModel("gemini-1.5-pro")
+	// model := client.GenerativeModel("gemini-2.0-flash-thinking-exp-01-21")
 
 	model.SetTemperature(1)
 	model.SetTopK(40)
@@ -46,14 +46,14 @@ func Gemini(prompt string, apiKey string) (utils.TransactionResponse, error) {
 
 	response, err := session.SendMessage(ctx, genai.Text(prompt))
 	if err != nil {
-		return utils.TransactionResponse{}, fmt.Errorf("Error sending message: %w", err)
+		return utils.TransactionResponse{}, fmt.Errorf("error sending message: %w", err)
 	}
 
 	// TODO: Retrying requests multiple times
 
 	res, err := sanitizeResponse(response)
 	if err != nil {
-		return utils.TransactionResponse{}, fmt.Errorf("Error sanitizing Gemini response: %w", err)
+		return utils.TransactionResponse{}, fmt.Errorf("error sanitizing Gemini response: %w", err)
 	}
 
 	return res, nil
@@ -65,7 +65,7 @@ func sanitizeResponse(response *genai.GenerateContentResponse) (utils.Transactio
 
 	jsonData, err := json.Marshal(res)
 	if err != nil {
-		return utils.TransactionResponse{}, fmt.Errorf("Error marshalling JSON: %w", err)
+		return utils.TransactionResponse{}, fmt.Errorf("error marshalling JSON: %w", err)
 	}
 
 	jsonString := string(jsonData)

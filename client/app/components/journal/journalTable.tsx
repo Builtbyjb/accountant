@@ -1,45 +1,80 @@
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow
-} from "~/components/ui/table"
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "~/components/ui/table";
+import React from "react";
+import type { JournalEntry, AccountDetails } from "~/lib/constants";
+import { v4 as uuidv4 } from "uuid";
 
-// Mock data for demonstration
-const journalEntries = [
-    { id: 1, date: "2023-06-01", accountName: "Cash", accountType: "Asset", debit: 1000, credit: 0 },
-    { id: 2, date: "2023-06-01", accountName: "Revenue", accountType: "Revenue", debit: 0, credit: 1000 },
-    { id: 3, date: "2023-06-02", accountName: "Expense", accountType: "Expense", debit: 500, credit: 0 },
-    { id: 4, date: "2023-06-02", accountName: "Cash", accountType: "Asset", debit: 0, credit: 500 },
-    // Add more mock entries as needed
-]
+type JournalProps = {
+  journalEntries?: JournalEntry[];
+};
 
-export default function JournalTable() {
-    return (
-        <Table>
-            <TableHeader>
-                <TableRow>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Account Name</TableHead>
-                    <TableHead>Account Type</TableHead>
-                    <TableHead>Debit</TableHead>
-                    <TableHead>Credit</TableHead>
+export default function JournalTable({ journalEntries }: JournalProps) {
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Date</TableHead>
+          <TableHead>Account Name</TableHead>
+          <TableHead>Debit</TableHead>
+          <TableHead>Credit</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {/* TODO: Figure out a better way to represent the table */}
+        {journalEntries ? (
+          journalEntries.map((entry: JournalEntry) => (
+            <React.Fragment key={uuidv4()}>
+              <TableRow key={uuidv4()}>
+                <TableCell>{entry.date}</TableCell>
+              </TableRow>
+              {entry.debit.map((d: AccountDetails) => (
+                <TableRow key={uuidv4()}>
+                  <TableCell></TableCell>
+                  <TableCell>{d.accountName}</TableCell>
+                  <TableCell>{d.amount.toFixed(2)}</TableCell>
+                  <TableCell></TableCell>
                 </TableRow>
-            </TableHeader>
-            <TableBody>
-                {journalEntries.map((entry) => (
-                    <TableRow key={entry.id}>
-                        <TableCell>{entry.date}</TableCell>
-                        <TableCell>{entry.accountName}</TableCell>
-                        <TableCell>{entry.accountType}</TableCell>
-                        <TableCell>{entry.debit.toFixed(2)}</TableCell>
-                        <TableCell>{entry.credit.toFixed(2)}</TableCell>
-                    </TableRow>
-                ))}
-            </TableBody>
-        </Table>
-    )
+              ))}
+              {entry.credit.map((c: AccountDetails) => (
+                <TableRow key={uuidv4()}>
+                  <TableCell></TableCell>
+                  <TableCell>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    {c.accountName}
+                  </TableCell>
+                  <TableCell></TableCell>
+                  <TableCell>{c.amount.toFixed(2)}</TableCell>
+                </TableRow>
+              ))}
+              <TableRow key={uuidv4()}>
+                <TableCell></TableCell>
+                <TableCell>{entry.description}</TableCell>
+                <TableCell></TableCell>
+                <TableCell></TableCell>
+              </TableRow>
+              <TableRow key={uuidv4()}>
+                <TableCell></TableCell>
+                <TableCell></TableCell>
+                <TableCell></TableCell>
+                <TableCell></TableCell>
+              </TableRow>
+            </React.Fragment>
+          ))
+        ) : (
+          <>
+            <p className="text-sm text-red-500 dark:text-red-400">
+              No journal entries at this time. Record a transaction to view
+              journal entries
+            </p>
+          </>
+        )}
+      </TableBody>
+    </Table>
+  );
 }
-

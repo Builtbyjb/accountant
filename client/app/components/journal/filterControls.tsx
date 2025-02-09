@@ -9,17 +9,18 @@ import {
     SelectTrigger,
     SelectValue
 } from "~/components/ui/select"
-import { Calendar } from "~/components/ui/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover"
-import { Download, Filter, CalendarIcon } from "lucide-react"
-import { format } from "date-fns"
+// import { Calendar } from "~/components/ui/calendar"
+// import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover"
+import { Download, Filter } from "lucide-react"
+// import { CalendarIcon } from "lucide-react"
+// import { format } from "date-fns"
 
 export default function FilterControls() {
     const [startDate, setStartDate] = useState("")
     const [endDate, setEndDate] = useState("")
     const [accountType, setAccountType] = useState("")
     const [accountName, setAccountName] = useState("")
-    const [date, setDate] = useState<Date>()
+    // const [date, setDate] = useState<Date>()
 
     const handleFilter = () => {
         // Implement filtering logic here
@@ -35,7 +36,7 @@ export default function FilterControls() {
         <div className="mb-6 space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
-                    <Popover>
+                    {/* <Popover>
                         <PopoverTrigger asChild>
                             <Button variant="outline">
                                 <CalendarIcon className="mr-2 h-4 w-4" />
@@ -45,7 +46,7 @@ export default function FilterControls() {
                         <PopoverContent className="w-auto p-0">
                             <Calendar mode="single" selected={date} onSelect={setDate} initialFocus />
                         </PopoverContent>
-                    </Popover>
+                    </Popover> */}
                     <Label htmlFor="startDate">Start Date</Label>
                     <Input type="date" id="startDate" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
                 </div>
