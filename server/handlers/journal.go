@@ -42,7 +42,7 @@ func getJournalEntries(db *gorm.DB) ([]database.JournalEntry, error) {
 	var J []database.JournalEntry
 	result := db.Find(&J)
 	if result.Error != nil {
-		return nil, fmt.Errorf("error fetching journal entries: %v", result.Error)
+		return nil, fmt.Errorf("error fetching journal entries: %w", result.Error)
 	}
 
 	// sanitized journal entries
@@ -54,14 +54,14 @@ func getJournalEntries(db *gorm.DB) ([]database.JournalEntry, error) {
 		var creditAccounts []database.Credit
 		creditResult := db.Where("journal_id = ?", J[i].Id).Find(&creditAccounts)
 		if creditResult.Error != nil {
-			return nil, fmt.Errorf("error fetching credit accounts: %v", creditResult.Error)
+			return nil, fmt.Errorf("error fetching credit accounts: %w", creditResult.Error)
 		}
 
 		// Get debit accounts
 		var debitAccounts []database.Debit
 		debitResult := db.Where("journal_id = ?", J[i].Id).Find(&debitAccounts)
 		if debitResult.Error != nil {
-			return nil, fmt.Errorf("error fetching debit accounts: %v", debitResult.Error)
+			return nil, fmt.Errorf("error fetching debit accounts: %w", debitResult.Error)
 		}
 
 		JournalEntries = append(JournalEntries, database.JournalEntry{

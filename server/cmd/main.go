@@ -4,29 +4,23 @@ import (
 	"log"
 
 	"server/database"
+	"server/handlers"
+	"server/middleware"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
-
-	// "server/middleware"
-
-	"server/handlers"
 )
 
 func main() {
 	app := fiber.New()
 
-	// Setup CORS
-	app.Use(cors.New(cors.Config{
-		AllowOrigins: "http://localhost:5173",
-		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
-	}))
+	app.Use(
+		middleware.Cors(),
+		middleware.RateLimiter(),
+	)
 
 	// Connect to database and create database engine
 	db := database.DB()
 	handler := &handlers.Handler{DB: db}
-
-	// TODO: refactor api endpoints
 
 	// health check
 	app.Get("/ping", func(c *fiber.Ctx) error {
@@ -35,16 +29,15 @@ func main() {
 		})
 	})
 
-	// api := app.Group("/api", middleware.AuthMiddleware())
-	api := app.Group("/api")
+	// Authentication routes
+	app.Post("/register", handlers.Register)
+	app.Post("/login", handlers.Login)
 
 	// Protected routes group
+	// api := app.Group("/api", middleware.AuthMiddleware())
+	api := app.Group("/api")
 	api.Post("/transaction", handler.HandleTransaction)
 	api.Get("/journal", handler.HandleJournal)
-
-	auth := app.Group("/auth")
-	auth.Post("/register", handlers.Register)
-	auth.Post("/login", handlers.Login)
 
 	log.Fatal(app.Listen("0.0.0.0:3000"))
 }
