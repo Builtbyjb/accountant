@@ -6,6 +6,7 @@ import Loading from "~/components/Loading";
 import { useLoaderData } from "@remix-run/react";
 import api from "~/lib/api";
 import { JournalEntry } from "~/lib/constants";
+import { AxiosError } from "axios";
 
 export const meta: MetaFunction = () => {
   return [
@@ -31,8 +32,18 @@ export const loader = async (): Promise<LoaderResponse | LoaderError> => {
       return { error: "Request error" };
     }
   } catch (error) {
-    console.log(error);
-    return { error: "Internal server error, we are working on the issue" };
+    const err = error as AxiosError;
+    if (err.status === 429) {
+      console.log("Too many requests");
+      return {
+        error: "Too many requests, wait a few seconds before trying again",
+      };
+    } else {
+      console.log(error);
+      return {
+        error: "Internal server error, we are working on the issue",
+      };
+    }
   }
 };
 
