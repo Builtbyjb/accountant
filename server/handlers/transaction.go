@@ -114,7 +114,7 @@ func addCreditAccounts(journalId uuid.UUID, db *gorm.DB, credits []utils.Account
 
 		amount, err := strconv.Atoi(credits[i].Amount)
 		if err != nil {
-			return fmt.Errorf("unable to convert credit amount string to int: %v", err)
+			return fmt.Errorf("unable to convert credit amount string to int: %w", err)
 		}
 
 		credit := database.Credit{
@@ -143,7 +143,7 @@ func addDebitAccounts(journalId uuid.UUID, db *gorm.DB, debits []utils.AccountDe
 
 		amount, err := strconv.Atoi(debits[i].Amount)
 		if err != nil {
-			return fmt.Errorf("unable to convert amount string to int: %v", err)
+			return fmt.Errorf("unable to convert debit amount string to int: %w", err)
 		}
 
 		debit := database.Debit{
@@ -155,7 +155,7 @@ func addDebitAccounts(journalId uuid.UUID, db *gorm.DB, debits []utils.AccountDe
 
 		r = db.Create(&debit)
 		if r.Error != nil {
-			return fmt.Errorf("count not add account to database: %w", r.Error)
+			return fmt.Errorf("count not add credit account to database: %w", r.Error)
 		} else {
 			continue
 		}
