@@ -15,6 +15,7 @@ func main() {
 
 	app.Use(
 		middleware.Cors(),
+		middleware.RequestTimer(),
 		middleware.RateLimiter(),
 	)
 
