@@ -12,6 +12,7 @@ import {
   PieChart,
   Settings2,
   SquareTerminal,
+  Banknote,
 } from "lucide-react";
 // import { Dialog, DialogContent, DialogTitle } from '@radix-ui/react-dialog';
 
@@ -55,46 +56,60 @@ const data = {
   ],
   navMain: [
     {
-      title: "Journal",
-      // icon: SquareTerminal,
-      // url: "#",
+      title: "General Ledger",
       icon: BookOpen,
       isActive: true,
+      isDisabled: false,
       items: [
         {
-          title: "Record Transaction",
+          title: "Record a Transaction",
           url: "/",
         },
         {
           title: "Journal Entries",
           url: "/journal",
+          isDisabled: false,
         },
-        // },
-        // {
-        //     title: "Settings",
-        //     url: "#",
-        // },
+        {
+          title: "T-Accounts",
+          url: "/t-accounts",
+          isDisabled: false,
+        },
+        {
+          title: "Trial Balance",
+          url: "/trial-balance",
+          isDisabled: false,
+        },
       ],
     },
-    // {
-    //     title: "Models",
-    //     url: "#",
-    //     icon: Bot,
-    //     items: [
-    //         {
-    //             title: "Genesis",
-    //             url: "#",
-    //         },
-    //         {
-    //             title: "Explorer",
-    //             url: "#",
-    //         },
-    //         {
-    //             title: "Quantum",
-    //             url: "#",
-    //         },
-    //     ],
-    // },
+    {
+      title: "Financial Statements",
+      icon: Banknote,
+      isActive: false,
+      isDisabled: true,
+      items: [
+        {
+          title: "Income Statement",
+          url: "#",
+          isDisabled: false,
+        },
+        {
+          title: "Shareholder's Equity Statement",
+          url: "#",
+          isDisabled: false,
+        },
+        {
+          title: "Balance Sheet",
+          url: "#",
+          isDisabled: false,
+        },
+        {
+          title: "Cashflow Statement",
+          url: "#",
+          isDisabled: false,
+        },
+      ],
+    },
     // {
     //     title: "Documentation",
     //     url: "#",

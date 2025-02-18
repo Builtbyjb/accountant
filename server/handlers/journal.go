@@ -1,15 +1,15 @@
 package handlers
 
 import (
+	"errors"
 	"fmt"
-	"log"
 	"server/database"
 
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
 )
 
-type Response struct {
+type JournalResponse struct {
 	Message string                  `json:"message"`
 	Data    []database.JournalEntry `json:"data"`
 }
@@ -19,7 +19,11 @@ func (h *Handler) HandleJournal(c *fiber.Ctx) error {
 
 	journalEntries, err := getJournalEntries(db)
 	if err != nil {
-		log.Fatalf("error fetching journal entries: %v", err)
+		errResponse := JournalResponse{
+			Message: "Unable to retrieve journal entries",
+			Data:    nil,
+		}
+		return c.Status(fiber.StatusNoContent).JSON(errResponse)
 	}
 
 	// jsondata, err := json.MarshalIndent(journalEntries, "", "  ")
@@ -28,7 +32,7 @@ func (h *Handler) HandleJournal(c *fiber.Ctx) error {
 	// }
 	// fmt.Println(string(jsondata))
 
-	response := Response{
+	response := JournalResponse{
 		Message: "Journal entries retrieved successfully",
 		Data:    journalEntries,
 	}
@@ -42,7 +46,11 @@ func getJournalEntries(db *gorm.DB) ([]database.JournalEntry, error) {
 	var J []database.JournalEntry
 	result := db.Find(&J)
 	if result.Error != nil {
-		return nil, fmt.Errorf("error fetching journal entries: %w", result.Error)
+		return nil, fmt.Errorf("database error: %w", result.Error)
+	}
+
+	if result.RowsAffected == 0 {
+		return nil, errors.New("no journal entries found")
 	}
 
 	// sanitized journal entries
@@ -54,14 +62,22 @@ func getJournalEntries(db *gorm.DB) ([]database.JournalEntry, error) {
 		var creditAccounts []database.Credit
 		creditResult := db.Where("journal_id = ?", J[i].Id).Find(&creditAccounts)
 		if creditResult.Error != nil {
-			return nil, fmt.Errorf("error fetching credit accounts: %w", creditResult.Error)
+			return nil, fmt.Errorf("database error: %w", creditResult.Error)
+		}
+
+		if creditResult.RowsAffected == 0 {
+			return nil, errors.New("no credit accounts found")
 		}
 
 		// Get debit accounts
 		var debitAccounts []database.Debit
 		debitResult := db.Where("journal_id = ?", J[i].Id).Find(&debitAccounts)
 		if debitResult.Error != nil {
-			return nil, fmt.Errorf("error fetching debit accounts: %w", debitResult.Error)
+			return nil, fmt.Errorf("database error: %w", debitResult.Error)
+		}
+
+		if debitResult.RowsAffected == 0 {
+			return nil, errors.New("no debit accounts found")
 		}
 
 		JournalEntries = append(JournalEntries, database.JournalEntry{

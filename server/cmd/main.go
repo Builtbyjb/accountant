@@ -39,6 +39,8 @@ func main() {
 	api := app.Group("/api")
 	api.Post("/transaction", handler.HandleTransaction)
 	api.Get("/journal", handler.HandleJournal)
+	api.Get("/t-accounts", handler.HandleTAccount)
+	api.Get("/trial-balance", handler.HandleTrialBalance)
 
 	log.Fatal(app.Listen("0.0.0.0:3000"))
 }

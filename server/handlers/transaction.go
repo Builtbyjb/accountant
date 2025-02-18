@@ -77,15 +77,15 @@ func (h *Handler) HandleTransaction(c *fiber.Ctx) error {
 	// INFO: Can use channels to run the functions concurrently
 
 	// Add credit accounts
-	creditAccountErr := addCreditAccounts(journal.Id, db, response.JournalEntry.Credits)
+	creditAccountErr := addAccounts(db, journal.Id, response.JournalEntry.Credits, "credit")
 	if creditAccountErr != nil {
-		log.Fatalf("Error creating accounts: %v", creditAccountErr)
+		log.Fatalf("Error creating credit accounts: %v", creditAccountErr)
 	}
 
 	// Add debit accounts
-	debitAccountErr := addDebitAccounts(journal.Id, db, response.JournalEntry.Debits)
+	debitAccountErr := addAccounts(db, journal.Id, response.JournalEntry.Debits, "debit")
 	if debitAccountErr != nil {
-		log.Fatalf("Error creating accounts: %v", debitAccountErr)
+		log.Fatalf("Error creating debit accounts: %v", debitAccountErr)
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
@@ -105,60 +105,89 @@ func generatePrompt(transaction string) (string, error) {
 	return prompt, nil
 }
 
-// Add journal entry credit accounts to the database
-func addCreditAccounts(journalId uuid.UUID, db *gorm.DB, credits []utils.AccountDetail) error {
+// Add journal entry accounts to the database
+func addAccounts(
+	db *gorm.DB,
+	journalId uuid.UUID,
+	accounts []utils.AccountDetail,
+	t string, // Debit or Credit
+) error {
 
 	var r *gorm.DB
 
-	for i := range len(credits) {
+	for i := range len(accounts) {
 
-		amount, err := strconv.Atoi(credits[i].Amount)
+		var account database.Account
+
+		// Check if an account with this account name exist
+		accountResult := db.Where("account_name", accounts[i].AccountName).First(&account)
+
+		if accountResult.Error != nil {
+			// if there is an error, The account does not exist. Create a new account
+			account = database.Account{
+				Id:            uuid.New(),
+				AccountName:   accounts[i].AccountName,
+				AccountRef:    generateAccountRef(db),
+				AccountType:   accounts[i].AccountType,
+				NormalBalance: accounts[i].NormalBalance,
+			}
+
+			r = db.Create(&account)
+			if r.Error != nil {
+				return fmt.Errorf("could not add account to database: %w", r.Error)
+			}
+		}
+
+		amount, err := strconv.Atoi(accounts[i].Amount)
 		if err != nil {
 			return fmt.Errorf("unable to convert credit amount string to int: %w", err)
 		}
 
-		credit := database.Credit{
-			Id:          uuid.New(),
-			JournalId:   journalId,
-			AccountName: credits[i].AccountName,
-			Amount:      amount,
-		}
+		if t == "credit" {
+			credit := database.Credit{
+				JournalId:   journalId,
+				AccountId:   account.Id,
+				AccountName: accounts[i].AccountName,
+				AccountRef:  account.AccountRef,
+				Amount:      amount,
+			}
 
-		r = db.Create(&credit)
-		if r.Error != nil {
-			return fmt.Errorf("count not add credit account to database: %w", r.Error)
+			r = db.Create(&credit)
+			if r.Error != nil {
+				return fmt.Errorf("count not add credit account to database: %w", r.Error)
+			}
 		} else {
-			continue
+			debit := database.Debit{
+				JournalId:   journalId,
+				AccountId:   account.Id,
+				AccountRef:  account.AccountRef,
+				AccountName: accounts[i].AccountName,
+				Amount:      amount,
+			}
+
+			r = db.Create(&debit)
+			if r.Error != nil {
+				return fmt.Errorf("count not add credit account to database: %w", r.Error)
+			}
 		}
 	}
 	return nil
 }
 
-// Add journal entry debit accounts to the database
-func addDebitAccounts(journalId uuid.UUID, db *gorm.DB, debits []utils.AccountDetail) error {
+// Generate Account references
+func generateAccountRef(db *gorm.DB) string {
+	const base int = 100
 
-	var r *gorm.DB
+	var a []database.Account
+	result := db.Find(&a)
 
-	for i := range len(debits) {
-
-		amount, err := strconv.Atoi(debits[i].Amount)
-		if err != nil {
-			return fmt.Errorf("unable to convert debit amount string to int: %w", err)
-		}
-
-		debit := database.Debit{
-			Id:          uuid.New(),
-			JournalId:   journalId,
-			AccountName: debits[i].AccountName,
-			Amount:      amount,
-		}
-
-		r = db.Create(&debit)
-		if r.Error != nil {
-			return fmt.Errorf("count not add credit account to database: %w", r.Error)
-		} else {
-			continue
-		}
+	if result.Error != nil {
+		log.Fatalf("database error: %v", result.Error)
 	}
-	return nil
+
+	length := int(result.RowsAffected) + base
+
+	accountRef := fmt.Sprintf("J%v", length)
+
+	return accountRef
 }
