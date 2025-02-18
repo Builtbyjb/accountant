@@ -47,6 +47,7 @@ func DB() *gorm.DB {
 	// Auto migrate models
 	err = db.AutoMigrate(
 		&JournalEntry{},
+		&Account{},
 		&Credit{},
 		&Debit{},
 	)

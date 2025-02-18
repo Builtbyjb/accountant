@@ -55,7 +55,8 @@ export async function action({
       return Response.json({ error: "Recording transaction failed" });
     }
   } catch (error) {
-    console.log(error);
+    // console.log(error);
+    console.log("Internal server error, we are solving the issue");
     return Response.json({
       error: "Internal server error, we are resolving the issue",
     });

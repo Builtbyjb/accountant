@@ -22,8 +22,8 @@ func Gemini(prompt string, apiKey string) (utils.TransactionResponse, error) {
 	defer client.Close()
 
 	// model := client.GenerativeModel("gemini-1.5-flash")
-	model := client.GenerativeModel("gemini-1.5-pro")
-	// model := client.GenerativeModel("gemini-2.0-flash-thinking-exp-01-21")
+	// model := client.GenerativeModel("gemini-1.5-pro")
+	model := client.GenerativeModel("gemini-2.0-flash-thinking-exp-01-21")
 
 	model.SetTemperature(1)
 	model.SetTopK(40)
@@ -81,7 +81,7 @@ func sanitizeResponse(response *genai.GenerateContentResponse) (utils.Transactio
 	cleanedString = strings.ReplaceAll(cleanedString, "\\\"", "\"")
 	cleanedString = strings.ReplaceAll(cleanedString, "\\", "")
 
-	// fmt.Println(cleanedString)
+	fmt.Println(cleanedString)
 
 	var r utils.TransactionResponse
 

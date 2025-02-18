@@ -6,22 +6,28 @@ import (
 	"github.com/google/uuid"
 )
 
+type Account struct {
+	Id            uuid.UUID `gorm:"type:uuid;primaryKey;default:gen_random_uuid()" json:"id"`
+	AccountName   string    `gorm:"type:text;not null" json:"accountName"`
+	AccountRef    string    `gorm:"type:text;not null" json:"accountRef"`
+	AccountType   string    `gorm:"type:text;not null" json:"accountType"`
+	NormalBalance string    `gorm:"type:text;not null" json:"normalBalance"`
+}
+
 type Credit struct {
 	JournalId   uuid.UUID `gorm:"type:uuid;foreignKey" json:"journalId"` // Foreign key
-	Id          uuid.UUID `gorm:"type:uuid;primaryKey;default:gen_random_uuid()" json:"id"`
+	AccountId   uuid.UUID `gorm:"type:uuid;primaryKey;default:gen_random_uuid()" json:"id"`
 	AccountName string    `gorm:"type:text;not null" json:"accountName"`
+	AccountRef  string    `gorm:"type:text;not null" json:"accountRef"`
 	Amount      int       `gorm:"type:integer;not null" json:"amount"`
-	CreatedAt   time.Time `json:"createdAt"`
-	UpdatedAt   time.Time `json:"updatedAt"`
 }
 
 type Debit struct {
 	JournalId   uuid.UUID `gorm:"type:uuid;foreignKey" json:"journalId"` // Foreign key
-	Id          uuid.UUID `gorm:"type:uuid;primaryKey;default:gen_random_uuid()" json:"id"`
+	AccountId   uuid.UUID `gorm:"type:uuid;primaryKey;default:gen_random_uuid()" json:"id"`
 	AccountName string    `gorm:"type:text;not null" json:"accountName"`
+	AccountRef  string    `gorm:"type:text;not null" json:"accountRef"`
 	Amount      int       `gorm:"type:integer;not null" json:"amount"`
-	CreatedAt   time.Time `json:"createdAt"`
-	UpdatedAt   time.Time `json:"updatedAt"`
 }
 
 type JournalEntry struct {
