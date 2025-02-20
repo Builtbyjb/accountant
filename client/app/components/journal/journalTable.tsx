@@ -37,7 +37,7 @@ export default function JournalTable({
         {journalEntries.map((entry: JournalEntry) => (
           <React.Fragment key={uuidv4()}>
             <TableRow key={uuidv4()}>
-              <TableCell>{entry.date}</TableCell>
+              <TableCell className="min-w-[8rem]">{entry.date}</TableCell>
             </TableRow>
             {entry.debits.map((d: AccountDetails) => (
               <TableRow key={uuidv4()}>

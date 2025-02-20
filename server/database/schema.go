@@ -16,7 +16,7 @@ type Account struct {
 
 type Credit struct {
 	JournalId   uuid.UUID `gorm:"type:uuid;foreignKey" json:"journalId"` // Foreign key
-	AccountId   uuid.UUID `gorm:"type:uuid;primaryKey;default:gen_random_uuid()" json:"id"`
+	AccountId   uuid.UUID `gorm:"type:uuid;not null" json:"id"`
 	AccountName string    `gorm:"type:text;not null" json:"accountName"`
 	AccountRef  string    `gorm:"type:text;not null" json:"accountRef"`
 	Amount      int       `gorm:"type:integer;not null" json:"amount"`
@@ -24,7 +24,7 @@ type Credit struct {
 
 type Debit struct {
 	JournalId   uuid.UUID `gorm:"type:uuid;foreignKey" json:"journalId"` // Foreign key
-	AccountId   uuid.UUID `gorm:"type:uuid;primaryKey;default:gen_random_uuid()" json:"id"`
+	AccountId   uuid.UUID `gorm:"type:uuid;not null" json:"id"`
 	AccountName string    `gorm:"type:text;not null" json:"accountName"`
 	AccountRef  string    `gorm:"type:text;not null" json:"accountRef"`
 	Amount      int       `gorm:"type:integer;not null" json:"amount"`

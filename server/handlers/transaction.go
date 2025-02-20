@@ -4,16 +4,14 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"os"
 	"strconv"
 
-	"server/agents"
+	"server/agents/gemini"
 	"server/database"
 	"server/utils"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
-	"github.com/joho/godotenv"
 	"gorm.io/gorm"
 )
 
@@ -22,15 +20,6 @@ type Transaction struct {
 }
 
 func (h *Handler) HandleTransaction(c *fiber.Ctx) error {
-
-	// Load .env file
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
-
-	// Get gemini api key
-	GEMINI_API_KEY := os.Getenv("GEMINI_API_KEY")
 
 	// Get transaction record from the client
 	var t Transaction
@@ -47,7 +36,7 @@ func (h *Handler) HandleTransaction(c *fiber.Ctx) error {
 		})
 	}
 
-	response, err := agents.Gemini(prompt, GEMINI_API_KEY)
+	response, err := gemini.GeminiTransaction(prompt, h.ApiKey)
 	if err != nil {
 		log.Fatalf("AI response error: %v", err)
 	}

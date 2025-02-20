@@ -6,5 +6,6 @@ import (
 
 // To pass database engine between api endpoints
 type Handler struct {
-	DB *gorm.DB
+	DB     *gorm.DB
+	ApiKey string
 }

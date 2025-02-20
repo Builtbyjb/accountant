@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"server/database"
+	"server/utils"
 
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
@@ -155,8 +156,8 @@ func getAccountEntries(
 
 	aEntryList := generateAccountEntry(creditList, debitList)
 
-	totalCredit := sum(creditList)
-	totalDebit := sum(debitList)
+	totalCredit := utils.Sum(creditList)
+	totalDebit := utils.Sum(debitList)
 
 	accEntries := accountEntries{
 		AccountRef:  accountRef,
@@ -206,13 +207,4 @@ func generateAccountEntry(cList []int, dList []int) []accountEntry {
 	// fmt.Println(aEntryList)
 
 	return aEntryList
-}
-
-// Sum T-Account entry amounts
-func sum(amounts []int) int {
-	var totalAmount int
-	for i := range amounts {
-		totalAmount += amounts[i]
-	}
-	return totalAmount
 }

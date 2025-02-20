@@ -3,42 +3,47 @@ package handlers
 import (
 	"errors"
 	"fmt"
+	"log"
+	"server/agents/gemini"
 	"server/database"
+	"server/utils"
 
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
 )
 
-type TrialBalanceEntry struct {
-	AccountName string `json:"accountName"`
-	Debit       int    `json:"debit"`
-	Credit      int    `json:"credit"`
-}
-
 type TrialBalanceResponse struct {
-	Message string              `json:"message"`
-	Data    []TrialBalanceEntry `json:"data"`
+	Message string                    `json:"message"`
+	Data    []utils.TrialBalanceEntry `json:"data"`
 }
 
 func (h *Handler) HandleTrialBalance(c *fiber.Ctx) error {
 	db := h.DB
 
-	// TODO: rearrange trial balance in order according to the
-	// trial balance rules
-	trialBalance, err := generateTrialBalance(db)
+	unOrderedTrialBalance, err := generateTrialBalance(db)
 	if err != nil {
 		return c.Status(fiber.StatusOK).SendString("Trial Balance error")
 	}
 
+	prompt, err := generateTrialBalancePrompt(unOrderedTrialBalance)
+	if err != nil {
+		log.Fatalf("error generating prompt: %v", err)
+	}
+
+	OrderedTrialBalance, err := gemini.GeminiTrialBalance(prompt, h.ApiKey)
+	if err != nil {
+		log.Fatalf("error ordering trial balance: %v", err)
+	}
+
 	response := TrialBalanceResponse{
 		Message: "Trial Balance retrieved successfully",
-		Data:    trialBalance,
+		Data:    OrderedTrialBalance,
 	}
 
 	return c.Status(fiber.StatusOK).JSON(response)
 }
 
-func generateTrialBalance(db *gorm.DB) ([]TrialBalanceEntry, error) {
+func generateTrialBalance(db *gorm.DB) ([]utils.TrialBalanceEntry, error) {
 	var accounts []database.Account
 	accountResult := db.Find(&accounts)
 	if accountResult.Error != nil {
@@ -49,20 +54,20 @@ func generateTrialBalance(db *gorm.DB) ([]TrialBalanceEntry, error) {
 		return nil, errors.New("no account found")
 	}
 
-	var trialBalance []TrialBalanceEntry
+	var trialBalance []utils.TrialBalanceEntry
 
 	for i := range accounts {
-		a := accounts[i].AccountName
+		aName := accounts[i].AccountName
 
 		var cAccounts []database.Credit
 		var dAccounts []database.Debit
 
-		cResult := db.Where("account_name = ?", a).Find(&cAccounts)
+		cResult := db.Where("account_name = ?", aName).Find(&cAccounts)
 		if cResult.Error != nil {
 			return nil, fmt.Errorf("database error: %w", cResult.Error)
 		}
 
-		dResult := db.Where("account_name = ?", a).Find(&dAccounts)
+		dResult := db.Where("account_name = ?", aName).Find(&dAccounts)
 		if dResult.Error != nil {
 			return nil, fmt.Errorf("database error: %w", dResult.Error)
 		}
@@ -78,13 +83,13 @@ func generateTrialBalance(db *gorm.DB) ([]TrialBalanceEntry, error) {
 			dList = append(dList, dAccounts[i].Amount)
 		}
 
-		tCredit := sumBal(cList)
-		tDebit := sumBal(dList)
+		tCredit := utils.Sum(cList)
+		tDebit := utils.Sum(dList)
 
 		var credit int
 		var debit int
 
-		bal, isDebitBal := balance(tCredit, tDebit)
+		bal, isDebitBal := balanceCheck(tCredit, tDebit)
 		if isDebitBal {
 			debit = bal
 			credit = 0
@@ -93,8 +98,8 @@ func generateTrialBalance(db *gorm.DB) ([]TrialBalanceEntry, error) {
 			debit = 0
 		}
 
-		trialBalance = append(trialBalance, TrialBalanceEntry{
-			AccountName: a,
+		trialBalance = append(trialBalance, utils.TrialBalanceEntry{
+			AccountName: aName,
 			Debit:       debit,
 			Credit:      credit,
 		})
@@ -103,18 +108,24 @@ func generateTrialBalance(db *gorm.DB) ([]TrialBalanceEntry, error) {
 	return trialBalance, nil
 }
 
-func sumBal(amounts []int) int {
-	var totalAmount int
-	for i := range amounts {
-		totalAmount += amounts[i]
-	}
-	return totalAmount
-}
-
-func balance(c int, d int) (int, bool) {
+func balanceCheck(c int, d int) (int, bool) {
 	bal := d - c
 	isDebitBal := bal >= 0
 
 	return bal, isDebitBal
+}
 
+func generateTrialBalancePrompt(trialBalance []utils.TrialBalanceEntry) (string, error) {
+
+	if len(trialBalance) <= 0 {
+		return "", errors.New("trial balance cannot be empty")
+	}
+
+	prompt := fmt.Sprintf(`Rearrange this trial balance entries "%v" in order of 
+	liquidity, adhering by the following rules assets first, followed by liabilities,
+	shareholder's equity, revenue, and expenses. You response should be in this format "%v".`,
+		trialBalance, utils.TrialBalanceResponseFormat,
+	)
+
+	return prompt, nil
 }

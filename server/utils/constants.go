@@ -23,10 +23,10 @@ type TransactionResponse struct {
 
 var TransactionResponseFormat = `
 {
-	"clarificationNeeded":"", // can be either true or false, true if you need further clarification
-	"questions":[], // a list of the questions you need answered in order to accurately record the transaction
+	"clarificationNeeded":"", // Can be either true or false, true if you need further clarification
+	"questions":[], // A list of the questions you need answered in order to accurately record the transaction
 	"journalEntry": {
-		"date": "", // In (dd-mm-yyyy) format
+		"date": "", // Transaction date
 		"credits": [ // For all the accounts credited
 			{
   		  		"accountName": "", // Account name
@@ -46,3 +46,15 @@ var TransactionResponseFormat = `
 		"description": "", // Why the accounts were affected, and the actions taken
 	}
 }`
+
+type TrialBalanceEntry struct {
+	AccountName string `json:"accountName"`
+	Debit       int    `json:"debit"`
+	Credit      int    `json:"credit"`
+}
+
+var TrialBalanceResponseFormat = `
+[
+{"accountName": "", "debit": 0, "credit": 0},
+]
+`

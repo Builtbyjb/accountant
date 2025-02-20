@@ -167,6 +167,7 @@ export function IndexPage() {
           />
           <label htmlFor="transaction" className="text-sm text-gray-400">
             Please provide as many details as possible about the transaction.
+            Including the transaction date
           </label>
           <p className="text-sm text-red-500 dark:text-red-400">
             {transactionInputError ? transactionInputError : null}

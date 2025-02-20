@@ -1,9 +1,9 @@
 import { motion } from "framer-motion";
 
 export default function Loading() {
-    return (
-        <div className="flex flex-col items-center">
-            {/* <motion.div
+  return (
+    <div className="flex flex-col items-center">
+      {/* <motion.div
         initial={{ rotate: -20 }}
         animate={{ rotate: 20 }}
         transition={{
@@ -24,25 +24,25 @@ export default function Loading() {
           />
         </svg>
       </motion.div> */}
-            {/* <h1 className="text-2xl mt-32">Loading...</h1> */}
-            <p className="text-lg mt-32">Loading...</p>
-            <div className="mt-8 flex space-x-2">
-                <motion.div
-                    className="w-3 h-3 bg-black rounded-full"
-                    animate={{ scale: [1, 1.5, 1] }}
-                    transition={{ repeat: Infinity, duration: 1, delay: 0 }}
-                />
-                <motion.div
-                    className="w-3 h-3 bg-black rounded-full"
-                    animate={{ scale: [1, 1.5, 1] }}
-                    transition={{ repeat: Infinity, duration: 1, delay: 0.2 }}
-                />
-                <motion.div
-                    className="w-3 h-3 bg-black rounded-full"
-                    animate={{ scale: [1, 1.5, 1] }}
-                    transition={{ repeat: Infinity, duration: 1, delay: 0.4 }}
-                />
-            </div>
-        </div>
-    );
+      {/* <h1 className="text-2xl mt-32">Loading...</h1> */}
+      <p className="text-lg mt-32">Loading...</p>
+      <div className="mt-8 flex space-x-2">
+        <motion.div
+          className="w-3 h-3 bg-white rounded-full"
+          animate={{ scale: [1, 1.5, 1] }}
+          transition={{ repeat: Infinity, duration: 1, delay: 0 }}
+        />
+        <motion.div
+          className="w-3 h-3 bg-white rounded-full"
+          animate={{ scale: [1, 1.5, 1] }}
+          transition={{ repeat: Infinity, duration: 1, delay: 0.2 }}
+        />
+        <motion.div
+          className="w-3 h-3 bg-white rounded-full"
+          animate={{ scale: [1, 1.5, 1] }}
+          transition={{ repeat: Infinity, duration: 1, delay: 0.4 }}
+        />
+      </div>
+    </div>
+  );
 }
